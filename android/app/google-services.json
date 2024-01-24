@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "610488669766",
+    "project_id": "localist-16fcf",
+    "storage_bucket": "localist-16fcf.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:610488669766:android:6bcd79299b6f8ee8009c47",
+        "android_client_info": {
+          "package_name": "com.example.localist"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCWJdd3Ovr4uMX3CUJkUQ7IhAFEHz4tYss"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
