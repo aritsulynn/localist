@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:localist/screen/register_login.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:localist/auth.dart';
+import 'package:localist/model/auth.dart';
+import 'package:localist/model/drawer.dart';
 
 class HomeScreen extends StatelessWidget {
   HomeScreen({Key? key}) : super(key: key);
@@ -24,23 +25,34 @@ class HomeScreen extends StatelessWidget {
     return ElevatedButton(onPressed: signOut, child: const Text("Sign Out"));
   }
 
+  Widget _floatingAddButton() {
+    return FloatingActionButton(
+      onPressed: () {},
+      backgroundColor: const Color.fromARGB(255, 255, 210, 75),
+      child: const Icon(Icons.add),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: _title()),
-      body: Container(
-        height: double.infinity,
-        width: double.infinity,
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            _userUID(),
-            _signOutButton(),
-          ],
-        ),
-      ),
+      // body: Container(
+      //   height: double.infinity,
+      //   width: double.infinity,
+      //   padding: const EdgeInsets.all(20),
+      //   child: Column(
+      //     crossAxisAlignment: CrossAxisAlignment.center,
+      //     mainAxisAlignment: MainAxisAlignment.center,
+      //     children: <Widget>[
+      //       _userUID(),
+      //       _signOutButton(),
+      //     ],
+      //   ),
+      // ),
+
+      floatingActionButton: _floatingAddButton(),
+      drawer: const NavigationDrawerCustom(),
     );
   }
 }

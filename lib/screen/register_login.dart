@@ -1,7 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 // import 'package:localist/model/profile.dart';
-import '../auth.dart';
+import '../model/auth.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -46,31 +46,77 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return const Text('Localist');
   }
 
+  // Widget _entryField(
+  //   String title,
+  //   TextEditingController controller,
+  // ) {
+  //   return TextField(
+  //     controller: controller,
+  //     keyboardType: title.toLowerCase() == 'email'
+  //         ? TextInputType.emailAddress
+  //         : TextInputType.text,
+  //     obscureText: title.toLowerCase() == 'password',
+  //     decoration: InputDecoration(
+  //       labelText: title,
+  //     ),
+  //   );
+  // }
   Widget _entryField(
     String title,
     TextEditingController controller,
   ) {
+    IconData? iconData;
+
+    if (title.toLowerCase() == 'email') iconData = Icons.email;
+    if (title.toLowerCase() == 'password') iconData = Icons.lock;
+
     return TextField(
       controller: controller,
-      keyboardType: title.toLowerCase() == 'email'
+      keyboardType: title.toLowerCase() == 'Email'
           ? TextInputType.emailAddress
           : TextInputType.text,
       obscureText: title.toLowerCase() == 'password',
       decoration: InputDecoration(
         labelText: title,
+        prefixIcon: iconData != null ? Icon(iconData) : null,
       ),
     );
   }
 
-  Widget _errorMessage() {
-    return Text(errorMessage == '' ? '' : "$errorMessage");
+  // Widget _errorMessage() {
+  //   return Text(errorMessage == '' ? '' : "$errorMessage");
+  // }
+  Widget _errorMessage(BuildContext context) {
+    if (errorMessage != '') {
+      WidgetsBinding.instance!.addPostFrameCallback((_) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(errorMessage!),
+            backgroundColor: Colors.red,
+            duration: Duration(seconds: 2),
+          ),
+        );
+      });
+    }
+    return Container(); // Return an empty container in the widget tree
   }
 
   Widget _submitButton() {
     return ElevatedButton(
       onPressed:
           isLogin ? signInWithEmailAndPassword : createUserWithEmailAndPassword,
-      child: Text(isLogin ? 'Login' : 'Register'),
+      style: ButtonStyle(
+          minimumSize: MaterialStateProperty.all(Size(double.infinity, 50)),
+          backgroundColor: MaterialStateProperty.all(Colors.lightBlue),
+          shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+            RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(17),
+                side: BorderSide(color: Colors.lightBlue)),
+          )),
+      child: Text(
+        isLogin ? 'Login' : 'Register',
+        style: TextStyle(color: Colors.white, fontSize: 16),
+      ),
     );
   }
 
@@ -88,25 +134,40 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: _title()),
-        body: Container(
-          height: double.infinity,
-          width: double.infinity,
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              _entryField('email', _controllerEmail),
-              _entryField('password', _controllerPassword),
-              _errorMessage(),
-              _submitButton(),
-              _loginOrRegisterButton()
-            ],
-          ),
-        ));
+      // appBar: AppBar(
+      //   title: _title(),
+      //   // backgroundColor: Colors.deepPurple,
+      // ),
+      body: Container(
+        height: double.infinity,
+        width: double.infinity,
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            // Image.asset(
+            //   'assets/images/cover.png',
+            //   height: 40,
+            // ),
+            Text("Login", style: TextStyle(fontSize: 40)),
+            SizedBox(height: 20),
+            _entryField('Email', _controllerEmail),
+            _entryField('Password', _controllerPassword),
+            _errorMessage(context),
+            SizedBox(height: 20),
+            _submitButton(),
+            _loginOrRegisterButton()
+          ],
+        ),
+      ),
+    );
   }
 }
+
+
+
+
   // @override
   // Widget build(BuildContext context) {
   //   return Scaffold(

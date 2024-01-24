@@ -1,4 +1,4 @@
-import 'package:localist/auth.dart';
+import 'package:localist/model/auth.dart';
 import 'package:localist/screen/home.dart';
 import 'package:localist/screen/register_login.dart';
 import 'package:flutter/material.dart';
