@@ -2,11 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:localist/screen/home.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:localist/model/auth.dart';
+import 'package:localist/screen/register_login.dart';
+import 'package:localist/widget_tree.dart';
+import 'package:localist/screen/aboutus.dart';
 
 class NavigationDrawerCustom extends StatelessWidget {
   const NavigationDrawerCustom({super.key});
 
-  Future<void> signOut() async {
+  Future<void> signOut(BuildContext context) async {
+    Navigator.popUntil(context, ModalRoute.withName('/')); // pop until root
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (context) => const WidgetTree(),
+    ));
     await Auth().signOut();
   }
 
@@ -47,6 +54,7 @@ class NavigationDrawerCustom extends StatelessWidget {
           leading: const Icon(Icons.home),
           title: const Text('Home'),
           onTap: () {
+            Navigator.of(context).pop();
             Navigator.of(context).push(MaterialPageRoute(
               builder: (context) => HomeScreen(),
             ));
@@ -56,14 +64,20 @@ class NavigationDrawerCustom extends StatelessWidget {
           // about us
           leading: const Icon(Icons.info),
           title: const Text('About us'),
-          onTap: () {},
+          onTap: () {
+            Navigator.of(context).pop();
+            Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => const AboutUs(),
+            ));
+          },
         ),
         ListTile(
           // logout
           leading: const Icon(Icons.logout),
           title: const Text('Logout'),
           onTap: () {
-            signOut();
+            Navigator.of(context).pop();
+            signOut(context);
           },
         ),
       ],

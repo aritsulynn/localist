@@ -3,13 +3,14 @@ import 'package:localist/screen/home.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:localist/widget_tree.dart';
-
+import 'package:firebase_database/firebase_database.dart';
 // void main() {
 //   runApp(const MyApp());
 // }
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // final storage = FirebaseStorage.instance;
 
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
