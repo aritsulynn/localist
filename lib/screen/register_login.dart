@@ -12,8 +12,6 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
-  final formKey = GlobalKey<FormState>();
-
   String? errorMessage = '';
   bool isLogin = true;
 
@@ -43,24 +41,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Widget _title() {
-    return const Text('Localist');
+    return const Text('Localist', style: TextStyle(fontSize: 30));
   }
 
-  // Widget _entryField(
-  //   String title,
-  //   TextEditingController controller,
-  // ) {
-  //   return TextField(
-  //     controller: controller,
-  //     keyboardType: title.toLowerCase() == 'email'
-  //         ? TextInputType.emailAddress
-  //         : TextInputType.text,
-  //     obscureText: title.toLowerCase() == 'password',
-  //     decoration: InputDecoration(
-  //       labelText: title,
-  //     ),
-  //   );
-  // }
   Widget _entryField(
     String title,
     TextEditingController controller,
@@ -83,9 +66,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-  // Widget _errorMessage() {
-  //   return Text(errorMessage == '' ? '' : "$errorMessage");
-  // }
   Widget _errorMessage(BuildContext context) {
     if (errorMessage != '') {
       WidgetsBinding.instance!.addPostFrameCallback((_) {
@@ -98,7 +78,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         );
       });
     }
-    return Container(); // Return an empty container in the widget tree
+    return Container(); // return empty container
   }
 
   Widget _submitButton() {
@@ -107,7 +87,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           isLogin ? signInWithEmailAndPassword : createUserWithEmailAndPassword,
       style: ButtonStyle(
           minimumSize: MaterialStateProperty.all(Size(double.infinity, 50)),
-          backgroundColor: MaterialStateProperty.all(Colors.lightBlue),
+          backgroundColor: MaterialStateProperty.all(Colors.black),
           shape: MaterialStateProperty.all<RoundedRectangleBorder>(
             RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(17),
@@ -121,23 +101,28 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Widget _loginOrRegisterButton() {
-    return TextButton(
-        onPressed: () {
-          setState(() {
-            isLogin = !isLogin;
-          });
-        },
-        child: Text(
-            isLogin ? '''Don't have account?''' : 'Already have account?'));
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        Text(isLogin ? '''Don't have account?''' : 'Already have account?'),
+        TextButton(
+          onPressed: () {
+            setState(() {
+              isLogin = !isLogin;
+            });
+          },
+          child: Text(
+            isLogin ? 'Register' : 'Login',
+            style: TextStyle(color: Colors.blueAccent),
+          ),
+        ),
+      ],
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(
-      //   title: _title(),
-      //   // backgroundColor: Colors.deepPurple,
-      // ),
       body: Container(
         height: double.infinity,
         width: double.infinity,
@@ -150,8 +135,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
             //   'assets/images/cover.png',
             //   height: 40,
             // ),
-            Text(isLogin ? "Login" : "Register",
-                style: TextStyle(fontSize: 40)),
+            Image(
+              image: AssetImage('assets/icon/icon.png'),
+              height: 100,
+            ),
+            // _title(),
+            // Divider(),
+            Text(isLogin ? "Hello again!" : "Register",
+                style: TextStyle(fontSize: 30)),
+            Text("Welcome to Localist", style: TextStyle(fontSize: 20)),
             SizedBox(height: 20),
             _entryField('Email', _controllerEmail),
             _entryField('Password', _controllerPassword),
@@ -166,54 +158,50 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 }
 
-
-
-
-  // @override
-  // Widget build(BuildContext context) {
-  //   return Scaffold(
-  //     appBar: AppBar(
-  //       title: Text("Register"),
-  //     ),
-  //     body: Padding(
-  //       padding: const EdgeInsets.all(30.0),
-  //       child: Container(
-  //           child: Form(
-  //         key: formKey,
-  //         child: SingleChildScrollView(
-  //           child:
-  //               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-  //             Text("Email", style: TextStyle(fontSize: 20)),
-  //             TextFormField(
-  //               keyboardType: TextInputType.emailAddress,
-  //               // onSaved: (String email) {
-  //               //   profile.email = email;
-  //               // },
-  //             ),
-  //             SizedBox(
-  //               height: 15,
-  //             ),
-  //             Text("Password", style: TextStyle(fontSize: 20)),
-  //             TextFormField(
-  //               obscureText: true,
-  //               // onSaved: (String password) {
-  //               //   profile.password = password;
-  //               // },
-  //             ),
-  //             SizedBox(
-  //               width: double.infinity,
-  //               child: ElevatedButton(
-  //                 onPressed: () {
-  //                   // formKey.currentState?.save();
-  //                   // print("email: $profile.email password: $profile.password");
-  //                 },
-  //                 child: Text("Register"),
-  //               ),
-  //             )
-  //           ]),
-  //         ),
-  //       )),
-  //     ),
-  //   );
-  // }
-
+// @override
+// Widget build(BuildContext context) {
+//   return Scaffold(
+//     appBar: AppBar(
+//       title: Text("Register"),
+//     ),
+//     body: Padding(
+//       padding: const EdgeInsets.all(30.0),
+//       child: Container(
+//           child: Form(
+//         key: formKey,
+//         child: SingleChildScrollView(
+//           child:
+//               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+//             Text("Email", style: TextStyle(fontSize: 20)),
+//             TextFormField(
+//               keyboardType: TextInputType.emailAddress,
+//               // onSaved: (String email) {
+//               //   profile.email = email;
+//               // },
+//             ),
+//             SizedBox(
+//               height: 15,
+//             ),
+//             Text("Password", style: TextStyle(fontSize: 20)),
+//             TextFormField(
+//               obscureText: true,
+//               // onSaved: (String password) {
+//               //   profile.password = password;
+//               // },
+//             ),
+//             SizedBox(
+//               width: double.infinity,
+//               child: ElevatedButton(
+//                 onPressed: () {
+//                   // formKey.currentState?.save();
+//                   // print("email: $profile.email password: $profile.password");
+//                 },
+//                 child: Text("Register"),
+//               ),
+//             )
+//           ]),
+//         ),
+//       )),
+//     ),
+//   );
+// }

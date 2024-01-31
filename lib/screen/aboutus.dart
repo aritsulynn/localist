@@ -20,8 +20,9 @@ class AboutUs extends StatelessWidget {
               Text("Localist", style: TextStyle(fontSize: 40)),
               SizedBox(height: 20),
               Text(
-                  "Localist is a simple todo app that allows you to add, edit, and delete your todos. It is built using Flutter and Firebase.",
-                  style: TextStyle(fontSize: 20)),
+                "Localist is a simple todo app that allows you to add, edit, and delete your todos. It is built using Flutter and Firebase.",
+                style: TextStyle(fontSize: 20),
+              ),
             ],
           ),
         ));

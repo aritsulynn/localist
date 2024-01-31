@@ -35,7 +35,11 @@ class NavigationDrawerCustom extends StatelessWidget {
   Widget buildHeader(BuildContext context) {
     return const DrawerHeader(
       decoration: BoxDecoration(
-        color: Colors.deepPurple,
+        color: Color.fromARGB(255, 187, 187, 187),
+        image: DecorationImage(
+          image: AssetImage('assets/icon/app_icon.png'),
+          fit: BoxFit.fitHeight,
+        ),
       ),
       child: Text(
         'Localist',

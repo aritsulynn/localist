@@ -26,8 +26,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Localist',
+      debugShowCheckedModeBanner: false, // remove debug banner
       theme: ThemeData(
-        // colorScheme: ColorScheme.fromSeed(seedColor: Colors.pink.shade300),
+        // colorScheme: ColorScheme.fromSeed(seedColor: Colors.orange.shade500),
         useMaterial3: true,
       ),
       // home: HomeScreen(),
