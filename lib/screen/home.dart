@@ -58,7 +58,7 @@ class HomeScreen extends StatelessWidget {
         stream: Todo().getAllTodos(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const CircularProgressIndicator();
+            return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return Text('Error: ${snapshot.error}');
           } else if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
@@ -71,7 +71,15 @@ class HomeScreen extends StatelessWidget {
                 Map<String, dynamic> data =
                     todos[index].data() as Map<String, dynamic>;
                 return Container(
-                    margin: const EdgeInsets.only(bottom: 10),
+                  margin: const EdgeInsets.only(bottom: 10),
+                  child: Dismissible(
+                    key: Key(todos[index].id),
+                    onDismissed: (direction) {
+                      Todo().deleteTodo(
+                        docId: todos[index].id,
+                      );
+                    },
+                    background: Container(color: Colors.red),
                     child: GestureDetector(
                       onTap: () {
                         Navigator.push(
@@ -123,7 +131,9 @@ class HomeScreen extends StatelessWidget {
                           ),
                         ),
                       ),
-                    ));
+                    ),
+                  ),
+                );
               },
             );
           }

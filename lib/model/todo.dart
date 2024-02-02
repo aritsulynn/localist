@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:localist/screen/add_new_todo.dart';
 
 class Todo {
   final db = FirebaseFirestore.instance;
@@ -7,8 +8,8 @@ class Todo {
   Future<void> addTodo({
     required String title,
     required String description,
-    required DateTime date,
-    required String location,
+    required Timestamp date,
+    // required GeoPoint location,
   }) async {
     await db
         .collection('users')
@@ -19,7 +20,7 @@ class Todo {
           'description': description,
           'isDone': false,
           'date': date,
-          'location': location,
+          // 'location': location,
         })
         .then((value) => print("Todo Added"))
         .catchError((error) => print("Failed to add todo: $error"));
@@ -48,6 +49,19 @@ class Todo {
         .update({'isDone': isDone})
         .then((value) => print("Todo Updated"))
         .catchError((error) => print("Failed to update todo: $error"));
+  }
+
+  Future<void> deleteTodo({
+    required String docId,
+  }) async {
+    await db
+        .collection('users')
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .collection('todos')
+        .doc(docId)
+        .delete()
+        .then((value) => print("Todo Deleted"))
+        .catchError((error) => print("Failed to delete todo: $error"));
   }
 
   // Future<String> getTodoTitle(String docId) async {

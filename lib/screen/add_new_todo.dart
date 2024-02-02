@@ -23,6 +23,8 @@ class _AddNewTodoState extends State<AddNewTodo> {
 
   bool isButtonEnabled = false;
 
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
   Future<void> add_new_todo() async {
     // try {
     //   await db.collection('users').doc(user?.uid).collection('todos').add({
@@ -35,10 +37,12 @@ class _AddNewTodoState extends State<AddNewTodo> {
     // }
     try {
       await Todo().addTodo(
-          title: titleController.text,
-          description: descriptionController.text,
-          date: DateTime.parse(dateController.text),
-          location: locationController.text);
+        title: titleController.text,
+        description: descriptionController.text,
+        date: Timestamp.fromDate(DateTime.parse(dateController.text)),
+      );
+      // date: DateTime.parse(dateController.text),
+      // location: locationController.text);
     } catch (e) {
       errorMessage = e.toString();
     }
@@ -120,10 +124,12 @@ class _AddNewTodoState extends State<AddNewTodo> {
 
   Widget _formTest(BuildContext context) {
     return Form(
+      key: _formKey,
       child: Column(
         children: [
           TextFormField(
-            decoration: InputDecoration(
+            controller: titleController,
+            decoration: const InputDecoration(
               labelText: 'Title',
               filled: true,
               prefixIcon: Icon(Icons.title),
@@ -134,22 +140,19 @@ class _AddNewTodoState extends State<AddNewTodo> {
                 borderSide: BorderSide(color: Colors.black),
               ),
             ),
-            controller: titleController,
-            validator: (value) {
-              if (value!.isEmpty) {
-                return 'This field is required';
-              }
-              return null;
-            },
+            validator: (value) =>
+                value!.isEmpty ? 'This field is required' : null,
           ),
           SizedBox(
             height: 10,
           ),
           TextFormField(
-            decoration: InputDecoration(
+            controller: descriptionController,
+            decoration: const InputDecoration(
+              contentPadding: EdgeInsets.fromLTRB(0, 0, 0, 150),
               labelText: 'Description',
               filled: true,
-              prefixIcon: Icon(Icons.description),
+              prefixIcon: Icon(Icons.title),
               enabledBorder: OutlineInputBorder(
                 borderSide: BorderSide(color: Colors.grey),
               ),
@@ -157,19 +160,15 @@ class _AddNewTodoState extends State<AddNewTodo> {
                 borderSide: BorderSide(color: Colors.black),
               ),
             ),
-            controller: descriptionController,
-            validator: (value) {
-              if (value!.isEmpty) {
-                return 'This field is required';
-              }
-              return null;
-            },
+            validator: (value) =>
+                value!.isEmpty ? 'This field is required' : null,
           ),
           SizedBox(
             height: 10,
           ),
           TextFormField(
-            decoration: InputDecoration(
+            controller: dateController,
+            decoration: const InputDecoration(
               labelText: 'Date',
               filled: true,
               prefixIcon: Icon(Icons.date_range),
@@ -180,40 +179,12 @@ class _AddNewTodoState extends State<AddNewTodo> {
                 borderSide: BorderSide(color: Colors.black),
               ),
             ),
-            controller: dateController,
             readOnly: true,
             onTap: () {
               pick_date();
             },
-            validator: (value) {
-              if (value!.isEmpty) {
-                return 'This field is required';
-              }
-              return null;
-            },
-          ),
-          SizedBox(
-            height: 10,
-          ),
-          TextFormField(
-            decoration: InputDecoration(
-              labelText: 'Location',
-              filled: true,
-              prefixIcon: Icon(Icons.location_on),
-              enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.grey),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.black),
-              ),
-            ),
-            controller: locationController,
-            validator: (value) {
-              if (value!.isEmpty) {
-                return 'This field is required';
-              }
-              return null;
-            },
+            validator: (value) =>
+                value!.isEmpty ? 'This field is required' : null,
           ),
         ],
       ),
@@ -228,11 +199,11 @@ class _AddNewTodoState extends State<AddNewTodo> {
         actions: [
           IconButton(
             onPressed: () {
-              if (isButtonEnabled) {
+              if (_formKey.currentState!.validate()) {
                 add_new_todo();
                 Navigator.pop(context);
               } else {
-                null;
+                print('Button is disabled');
               }
             },
             icon: const Icon(Icons.check),
