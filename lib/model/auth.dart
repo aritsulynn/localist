@@ -23,11 +23,15 @@ class Auth {
     required String password,
   }) async {
     await _firebaseAuth.createUserWithEmailAndPassword(
-        email: email, password: password);
+      email: email,
+      password: password,
+    );
     CollectionReference users = FirebaseFirestore.instance.collection('users');
     users.doc(_firebaseAuth.currentUser!.uid).set({
       'email': email,
       'uid': _firebaseAuth.currentUser!.uid,
+      'username': email.split('@')[0],
+      'bio': 'Empty bio...'
     });
     // .then((value) => print("User Added"))
     // .catchError((error) => return error);
