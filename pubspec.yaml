@@ -42,6 +42,7 @@ dependencies:
   cloud_firestore: ^4.14.0
   # google_sign_in: ^6.2.1
   map_location_picker: ^1.2.7
+  provider: ^6.1.1
   
 
 dev_dependencies:
@@ -92,6 +93,9 @@ flutter:
       - assets/images/cover_m.png
       - assets/icon/app_icon.png
       - assets/icon/icon.png
+      - assets/images/cover.jpg
+      - assets/images/panda.jpg
+
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:localist/data/user_profile.dart';
+import 'package:localist/model/auth.dart';
+import 'package:localist/screen/aboutus.dart';
+import 'package:localist/screen/add_new_todo.dart';
 import 'package:localist/screen/home.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:localist/screen/register_login.dart';
+import 'package:localist/screen/myprofile.dart';
+import 'package:provider/provider.dart';
 import 'firebase_options.dart';
-import 'package:localist/widget_tree.dart';
-import 'package:firebase_database/firebase_database.dart';
 // void main() {
 //   runApp(const MyApp());
 // }
@@ -16,7 +21,8 @@ Future<void> main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  runApp(const MyApp());
+  runApp(ChangeNotifierProvider(
+      create: (context) => UserProfile('Panda Him'), child: const MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -28,11 +34,24 @@ class MyApp extends StatelessWidget {
       title: 'Localist',
       debugShowCheckedModeBanner: false, // remove debug banner
       theme: ThemeData(
-        // colorScheme: ColorScheme.fromSeed(seedColor: Colors.orange.shade500),
         useMaterial3: true,
       ),
-      // home: HomeScreen(),
-      home: const WidgetTree(),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => StreamBuilder(
+              stream: Auth().authStateChanges,
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  return HomeScreen();
+                } else {
+                  return const RegisterScreen();
+                }
+              },
+            ),
+        '/AddNewTodo': (context) => const AddNewTodo(),
+        '/profile': (context) => const MyProfile(''),
+        '/aboutus': (context) => const AboutUs(),
+      },
     );
   }
 }

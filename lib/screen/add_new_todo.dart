@@ -20,21 +20,13 @@ class _AddNewTodoState extends State<AddNewTodo> {
   final TextEditingController dateController = TextEditingController();
   final TextEditingController locationController = TextEditingController();
   final TextEditingController isDoneController = TextEditingController();
+  final TextEditingController tagController = TextEditingController();
 
   bool isButtonEnabled = false;
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   Future<void> add_new_todo() async {
-    // try {
-    //   await db.collection('users').doc(user?.uid).collection('todos').add({
-    //     'title': titleController.text,
-    //     'description': descriptionController.text,
-    //     'isDone': false,
-    //   });
-    // } on FirebaseException catch (e) {
-    //   print(e);
-    // }
     try {
       await Todo().addTodo(
         title: titleController.text,
@@ -122,7 +114,7 @@ class _AddNewTodoState extends State<AddNewTodo> {
     );
   }
 
-  Widget _formTest(BuildContext context) {
+  Widget _formAddTodo(BuildContext context) {
     return Form(
       key: _formKey,
       child: Column(
@@ -131,19 +123,19 @@ class _AddNewTodoState extends State<AddNewTodo> {
             controller: titleController,
             decoration: const InputDecoration(
               labelText: 'Title',
-              filled: true,
+              filled: false,
               prefixIcon: Icon(Icons.title),
-              enabledBorder: OutlineInputBorder(
+              enabledBorder: const OutlineInputBorder(
                 borderSide: BorderSide(color: Colors.grey),
               ),
-              focusedBorder: OutlineInputBorder(
+              focusedBorder: const OutlineInputBorder(
                 borderSide: BorderSide(color: Colors.black),
               ),
             ),
             validator: (value) =>
                 value!.isEmpty ? 'This field is required' : null,
           ),
-          SizedBox(
+          const SizedBox(
             height: 10,
           ),
           TextFormField(
@@ -151,31 +143,50 @@ class _AddNewTodoState extends State<AddNewTodo> {
             decoration: const InputDecoration(
               contentPadding: EdgeInsets.fromLTRB(0, 0, 0, 150),
               labelText: 'Description',
-              filled: true,
-              prefixIcon: Icon(Icons.title),
-              enabledBorder: OutlineInputBorder(
+              filled: false,
+              prefixIcon: Icon(Icons.description),
+              enabledBorder: const OutlineInputBorder(
                 borderSide: BorderSide(color: Colors.grey),
               ),
-              focusedBorder: OutlineInputBorder(
+              focusedBorder: const OutlineInputBorder(
                 borderSide: BorderSide(color: Colors.black),
               ),
             ),
             validator: (value) =>
                 value!.isEmpty ? 'This field is required' : null,
           ),
-          SizedBox(
+          const SizedBox(
+            height: 10,
+          ),
+          TextFormField(
+            controller: tagController,
+            decoration: const InputDecoration(
+              labelText: 'Tag',
+              filled: false,
+              prefixIcon: Icon(Icons.tag),
+              enabledBorder: const OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.grey),
+              ),
+              focusedBorder: const OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.black),
+              ),
+            ),
+            validator: (value) =>
+                value!.isEmpty ? 'This field is required' : null,
+          ),
+          const SizedBox(
             height: 10,
           ),
           TextFormField(
             controller: dateController,
             decoration: const InputDecoration(
               labelText: 'Date',
-              filled: true,
+              filled: false,
               prefixIcon: Icon(Icons.date_range),
-              enabledBorder: OutlineInputBorder(
+              enabledBorder: const OutlineInputBorder(
                 borderSide: BorderSide(color: Colors.grey),
               ),
-              focusedBorder: OutlineInputBorder(
+              focusedBorder: const OutlineInputBorder(
                 borderSide: BorderSide(color: Colors.black),
               ),
             ),
@@ -183,6 +194,25 @@ class _AddNewTodoState extends State<AddNewTodo> {
             onTap: () {
               pick_date();
             },
+            validator: (value) =>
+                value!.isEmpty ? 'This field is required' : null,
+          ),
+          const SizedBox(
+            height: 10,
+          ),
+          TextFormField(
+            controller: locationController,
+            decoration: const InputDecoration(
+              labelText: 'Location',
+              filled: false,
+              prefixIcon: Icon(Icons.location_on),
+              enabledBorder: const OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.grey),
+              ),
+              focusedBorder: const OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.black),
+              ),
+            ),
             validator: (value) =>
                 value!.isEmpty ? 'This field is required' : null,
           ),
@@ -210,30 +240,18 @@ class _AddNewTodoState extends State<AddNewTodo> {
           ),
         ],
       ),
-      body: Container(
-        padding: const EdgeInsets.all(20),
-        margin: const EdgeInsets.only(top: 20, left: 20, right: 20),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          color: Colors.grey[400],
-        ),
-        child: Column(
-          children: [
-            _formTest(context),
-            // _entryField('Title', titleController),
-            // SizedBox(
-            //   height: 10,
-            // ),
-            // _entryField('Description', descriptionController),
-            // SizedBox(
-            //   height: 10,
-            // ),
-            // _entryField('Date', dateController),
-            // SizedBox(
-            //   height: 10,
-            // ),
-            // _entryField('Location', descriptionController)
-          ],
+      body: SingleChildScrollView(
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          margin: const EdgeInsets.only(top: 20, left: 20, right: 20),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Column(
+            children: [
+              _formAddTodo(context),
+            ],
+          ),
         ),
       ),
     );

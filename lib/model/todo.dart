@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:localist/screen/add_new_todo.dart';
+// import 'package:localist/screen/add_new_todo.dart';
 
 class Todo {
   final db = FirebaseFirestore.instance;
