@@ -1,10 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:localist/data/user_profile.dart';
-import 'package:localist/model/numbers_widget.dart';
+// import 'package:localist/data/user_profile.dart';
+// import 'package:localist/model/numbers_widget.dart';
 import 'package:localist/screen/edit_profile.dart';
-import 'package:provider/provider.dart';
+// import 'package:provider/provider.dart';
 
 class MyProfile extends StatefulWidget {
   final String? name;
@@ -182,6 +182,54 @@ class ImageDialog extends StatelessWidget {
         height: 400,
         fit: BoxFit.cover,
       ),
+    );
+  }
+}
+
+class NumberWidget extends StatelessWidget {
+  @override
+  Widget build(context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        buildButton(text: 'TOTAL', value: 12),
+        buildDivider(),
+        buildButton(text: 'ONGOING', value: 3),
+        buildDivider(),
+        buildButton(text: 'COMPLETED', value: 9),
+      ],
+    );
+  }
+
+  Widget buildButton({required String text, required int value}) {
+    return MaterialButton(
+        onPressed: () {},
+        padding: EdgeInsets.symmetric(vertical: 4),
+        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Text(
+              '$value',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              text,
+              style: const TextStyle(fontSize: 16),
+            )
+          ],
+        ));
+  }
+
+  Widget buildDivider() {
+    return Container(
+      height: 0, // Adjust the height to fit your design
+      width: 1, // This will be the thickness of the divider
+      color: Colors.grey, // Choose a color that fits your app's theme
+      margin: const EdgeInsets.symmetric(
+          horizontal: 12), // Add some spacing on both sides
     );
   }
 }
