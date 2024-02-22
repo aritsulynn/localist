@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:localist/data/user_profile.dart';
-import 'package:localist/model/image_dialog.dart';
 import 'package:localist/model/numbers_widget.dart';
 import 'package:localist/screen/edit_profile.dart';
 import 'package:provider/provider.dart';
@@ -166,6 +165,22 @@ class _MyProfileState extends State<MyProfile> {
                 ),
                 padding: const EdgeInsets.fromLTRB(0, 10, 10, 10)),
             child: const Text('Edit Profile')),
+      ),
+    );
+  }
+}
+
+class ImageDialog extends StatelessWidget {
+  const ImageDialog({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      child: Image.asset(
+        'assets/images/panda.jpg',
+        width: 400,
+        height: 400,
+        fit: BoxFit.cover,
       ),
     );
   }
