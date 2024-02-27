@@ -1,9 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:localist/data/user_profile.dart';
-import 'package:localist/model/image_dialog.dart';
-import 'package:localist/model/numbers_widget.dart';
+// import 'package:localist/data/user_profile.dart';
+// import 'package:localist/model/numbers_widget.dart';
 import 'package:localist/screen/edit_profile.dart';
-import 'package:provider/provider.dart';
+// import 'package:provider/provider.dart';
 
 class MyProfile extends StatefulWidget {
   final String? name;
@@ -15,6 +16,9 @@ class MyProfile extends StatefulWidget {
 }
 
 class _MyProfileState extends State<MyProfile> {
+  //user
+  final currentUser = FirebaseAuth.instance.currentUser!;
+
   final double coverHeight = 280;
   final double profileHeight = 100;
 
@@ -28,6 +32,7 @@ class _MyProfileState extends State<MyProfile> {
           buildTop(),
           buildContent(),
           buildNumberSection(),
+          buildButton(),
         ],
       ),
       // bottomNavigationBar: buildButton(),
@@ -82,21 +87,53 @@ class _MyProfileState extends State<MyProfile> {
   }
 
   Widget buildContent() {
-    final userProfile = Provider.of<UserProfile>(context);
-    return Column(
-      children: [
-        const SizedBox(height: 20),
-        Text(
-          userProfile.name,
-          style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 4),
-        const Text(
-          'test123@gmail.com',
-          style: TextStyle(fontSize: 18),
-        ),
-        const SizedBox(height: 16),
-      ],
+    return StreamBuilder<DocumentSnapshot>(
+      stream: FirebaseFirestore.instance
+          .collection('users')
+          .doc(currentUser.uid)
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          // If the snapshot is still loading data, show a CircularProgressIndicator
+          return Center(child: CircularProgressIndicator());
+        }
+
+        if (snapshot.error != null) {
+          // If the snapshot ran into an error, display it
+          return Center(child: Text('Error: ${snapshot.error}'));
+        }
+
+        if (!snapshot.hasData || snapshot.data?.data() == null) {
+          // If the snapshot has no data, inform the user
+          return Center(child: Text('No data available'));
+        }
+
+        // If there is data, display the user information
+        final userData = snapshot.data!.data() as Map<String, dynamic>;
+        return Column(
+          children: [
+            const SizedBox(height: 20),
+            Text(
+              userData['username'] ??
+                  'N/A', // Provide a fallback if the username is null
+              style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              userData['email'] ??
+                  'N/A', // Provide a fallback if the email is null
+              style: const TextStyle(fontSize: 18),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              userData['bio'] ?? 'N/A', // Provide a fallback if the bio is null
+              textAlign: TextAlign.center, // Center the text (horizontally)
+              style: const TextStyle(fontSize: 18),
+            ),
+            const SizedBox(height: 16),
+          ],
+        );
+      },
     );
   }
 
@@ -129,6 +166,70 @@ class _MyProfileState extends State<MyProfile> {
                 padding: const EdgeInsets.fromLTRB(0, 10, 10, 10)),
             child: const Text('Edit Profile')),
       ),
+    );
+  }
+}
+
+class ImageDialog extends StatelessWidget {
+  const ImageDialog({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      child: Image.asset(
+        'assets/images/panda.jpg',
+        width: 400,
+        height: 400,
+        fit: BoxFit.cover,
+      ),
+    );
+  }
+}
+
+class NumberWidget extends StatelessWidget {
+  @override
+  Widget build(context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        buildButton(text: 'TOTAL', value: 12),
+        buildDivider(),
+        buildButton(text: 'ONGOING', value: 3),
+        buildDivider(),
+        buildButton(text: 'COMPLETED', value: 9),
+      ],
+    );
+  }
+
+  Widget buildButton({required String text, required int value}) {
+    return MaterialButton(
+        onPressed: () {},
+        padding: EdgeInsets.symmetric(vertical: 4),
+        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Text(
+              '$value',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              text,
+              style: const TextStyle(fontSize: 16),
+            )
+          ],
+        ));
+  }
+
+  Widget buildDivider() {
+    return Container(
+      height: 0, // Adjust the height to fit your design
+      width: 1, // This will be the thickness of the divider
+      color: Colors.grey, // Choose a color that fits your app's theme
+      margin: const EdgeInsets.symmetric(
+          horizontal: 12), // Add some spacing on both sides
     );
   }
 }
