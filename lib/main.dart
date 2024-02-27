@@ -5,10 +5,14 @@ import 'package:localist/screen/aboutus.dart';
 import 'package:localist/screen/add_new_todo.dart';
 import 'package:localist/screen/home.dart';
 import 'package:firebase_core/firebase_core.dart';
+
 import 'package:localist/screen/register_login.dart';
 import 'package:localist/screen/myprofile.dart';
 import 'package:provider/provider.dart';
 import 'firebase_options.dart';
+
+// test
+import 'package:localist/screen/map.dart';
 // void main() {
 //   runApp(const MyApp());
 // }
@@ -51,6 +55,7 @@ class MyApp extends StatelessWidget {
         '/AddNewTodo': (context) => const AddNewTodo(),
         '/profile': (context) => const MyProfile(''),
         '/aboutus': (context) => const AboutUs(),
+        '/map': (context) => const mapTest(),
       },
     );
   }

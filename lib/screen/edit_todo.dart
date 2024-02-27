@@ -57,6 +57,12 @@ class _EditScreenState extends State<EditScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    getTodoDetail();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(title: Text("Edit Todo")),
