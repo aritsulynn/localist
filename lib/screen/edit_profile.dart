@@ -1,9 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:localist/data/user_profile.dart';
 import 'package:localist/screen/myprofile.dart';
-import 'package:provider/provider.dart';
 
 class EditProfile extends StatefulWidget {
   const EditProfile({super.key});

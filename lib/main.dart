@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:localist/data/user_profile.dart';
 import 'package:localist/model/auth.dart';
 import 'package:localist/screen/aboutus.dart';
 import 'package:localist/screen/add_new_todo.dart';
@@ -8,7 +7,6 @@ import 'package:firebase_core/firebase_core.dart';
 
 import 'package:localist/screen/register_login.dart';
 import 'package:localist/screen/myprofile.dart';
-import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 
 // test
@@ -25,8 +23,7 @@ Future<void> main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  runApp(ChangeNotifierProvider(
-      create: (context) => UserProfile('Panda Him'), child: const MyApp()));
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
