@@ -43,6 +43,8 @@ dependencies:
   # google_sign_in: ^6.2.1
   map_location_picker: ^1.2.7
   provider: ^6.1.1
+
+  longdo_maps_api3_flutter: ^1.11.0 
   
 
 dev_dependencies:
