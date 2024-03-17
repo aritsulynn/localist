@@ -1,5 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 // import 'package:localist/model/profile.dart';
 import '../model/auth.dart';
@@ -69,12 +67,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   Widget _errorMessage(BuildContext context) {
     if (errorMessage != '') {
-      WidgetsBinding.instance!.addPostFrameCallback((_) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(errorMessage!),
             backgroundColor: Colors.red,
-            duration: Duration(seconds: 2),
+            duration: const Duration(seconds: 2),
           ),
         );
       });
@@ -87,16 +85,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
       onPressed:
           isLogin ? signInWithEmailAndPassword : createUserWithEmailAndPassword,
       style: ButtonStyle(
-          minimumSize: MaterialStateProperty.all(Size(double.infinity, 50)),
+          minimumSize: MaterialStateProperty.all(const Size(double.infinity, 50)),
           backgroundColor: MaterialStateProperty.all(Colors.black),
           shape: MaterialStateProperty.all<RoundedRectangleBorder>(
             RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(17),
-                side: BorderSide(color: Colors.lightBlue)),
+                side: const BorderSide(color: Colors.lightBlue)),
           )),
       child: Text(
         isLogin ? 'Login' : 'Register',
-        style: TextStyle(color: Colors.white, fontSize: 16),
+        style: const TextStyle(color: Colors.white, fontSize: 16),
       ),
     );
   }
@@ -114,7 +112,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           },
           child: Text(
             isLogin ? 'Register' : 'Login',
-            style: TextStyle(color: Colors.blueAccent),
+            style: const TextStyle(color: Colors.blueAccent),
           ),
         ),
       ],
@@ -136,20 +134,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
             //   'assets/images/cover.png',
             //   height: 40,
             // ),
-            Image(
+            const Image(
               image: AssetImage('assets/icon/icon.png'),
               height: 100,
             ),
             // _title(),
             // Divider(),
             Text(isLogin ? "Hello again!" : "Register",
-                style: TextStyle(fontSize: 30)),
-            Text("Welcome to Localist", style: TextStyle(fontSize: 20)),
-            SizedBox(height: 20),
+                style: const TextStyle(fontSize: 30)),
+            const Text("Welcome to Localist", style: TextStyle(fontSize: 20)),
+            const SizedBox(height: 20),
             _entryField('Email', _controllerEmail),
             _entryField('Password', _controllerPassword),
             _errorMessage(context),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             _submitButton(),
             _loginOrRegisterButton()
           ],

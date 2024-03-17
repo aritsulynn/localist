@@ -9,7 +9,7 @@ class Todo {
     required String title,
     required String description,
     required Timestamp date,
-    // required GeoPoint location,
+    GeoPoint? location,
   }) async {
     await db
         .collection('users')
@@ -20,7 +20,7 @@ class Todo {
           'description': description,
           'isDone': false,
           'date': date,
-          // 'location': location,
+          'location': location,
         })
         .then((value) => print("Todo Added"))
         .catchError((error) => print("Failed to add todo: $error"));

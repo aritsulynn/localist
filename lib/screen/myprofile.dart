@@ -95,7 +95,7 @@ class _MyProfileState extends State<MyProfile> {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           // If the snapshot is still loading data, show a CircularProgressIndicator
-          return Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator());
         }
 
         if (snapshot.error != null) {
@@ -105,7 +105,7 @@ class _MyProfileState extends State<MyProfile> {
 
         if (!snapshot.hasData || snapshot.data?.data() == null) {
           // If the snapshot has no data, inform the user
-          return Center(child: Text('No data available'));
+          return const Center(child: Text('No data available'));
         }
 
         // If there is data, display the user information
@@ -138,7 +138,7 @@ class _MyProfileState extends State<MyProfile> {
   }
 
   Widget buildNumberSection() {
-    return NumberWidget();
+    return const NumberWidget();
   }
 
   Widget buildButton() {
@@ -187,6 +187,8 @@ class ImageDialog extends StatelessWidget {
 }
 
 class NumberWidget extends StatelessWidget {
+  const NumberWidget({super.key});
+
   @override
   Widget build(context) {
     return Row(
@@ -204,7 +206,7 @@ class NumberWidget extends StatelessWidget {
   Widget buildButton({required String text, required int value}) {
     return MaterialButton(
         onPressed: () {},
-        padding: EdgeInsets.symmetric(vertical: 4),
+        padding: const EdgeInsets.symmetric(vertical: 4),
         materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -212,7 +214,7 @@ class NumberWidget extends StatelessWidget {
           children: <Widget>[
             Text(
               '$value',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
             ),
             const SizedBox(height: 2),
             Text(

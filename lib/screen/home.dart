@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 // Authenication
-import 'package:localist/screen/register_login.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:localist/model/auth.dart';
@@ -13,7 +12,7 @@ import 'package:localist/screen/add_new_todo.dart';
 import 'package:localist/screen/edit_todo.dart';
 
 class HomeScreen extends StatelessWidget {
-  HomeScreen({Key? key}) : super(key: key);
+  HomeScreen({super.key});
   // const HomeScreen({super.key});
 
   final db = FirebaseFirestore.instance;
@@ -103,7 +102,7 @@ class HomeScreen extends StatelessWidget {
                                 child: Checkbox(
                                   value: data['isDone'],
                                   side:
-                                      BorderSide(color: Colors.white, width: 2),
+                                      const BorderSide(color: Colors.white, width: 2),
                                   checkColor: Colors.white,
                                   activeColor: Colors.black,
                                   onChanged: (value) {
@@ -145,7 +144,7 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("All Todos")),
+      appBar: AppBar(title: const Text("All Todos")),
       body: Container(
         height: double.infinity,
         width: double.infinity,

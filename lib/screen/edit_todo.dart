@@ -14,7 +14,7 @@ class EditScreen extends StatefulWidget {
 class _EditScreenState extends State<EditScreen> {
   final db = FirebaseFirestore.instance;
   final User? user = Auth().currentUser;
-
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   String? errorMessage = '';
   final TextEditingController titleController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
@@ -31,12 +31,16 @@ class _EditScreenState extends State<EditScreen> {
           .update({
         'title': titleController.text,
         'description': descriptionController.text,
-        'date': DateTime.parse(dateController.text),
+        'date': Timestamp.fromDate(DateTime.parse(dateController.text)),
         'location': locationController.text,
       });
     } catch (e) {
       errorMessage = e.toString();
     }
+  }
+
+  String formatLocation(GeoPoint location) {
+    return '${location.latitude}, ${location.longitude}';
   }
 
   Future<void> getTodoDetail() async {
@@ -49,10 +53,25 @@ class _EditScreenState extends State<EditScreen> {
           .get();
       titleController.text = documentSnapshot['title'];
       descriptionController.text = documentSnapshot['description'];
-      dateController.text = documentSnapshot['date'].toString();
-      locationController.text = documentSnapshot['location'];
+      dateController.text =
+          documentSnapshot['date'].toDate().toString().split(' ')[0];
+      locationController.text = formatLocation(documentSnapshot['location']);
     } catch (e) {
       errorMessage = e.toString();
+    }
+  }
+
+  Future<void> pick_date() async {
+    DateTime? date = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(DateTime.now().year),
+      lastDate: DateTime(2100),
+    );
+    if (date != null) {
+      setState(() {
+        dateController.text = date.toString().split(' ')[0]; // get date only
+      });
     }
   }
 
@@ -62,47 +81,82 @@ class _EditScreenState extends State<EditScreen> {
     getTodoDetail();
   }
 
+  Widget _formEditTodo(BuildContext context) {
+    return Form(
+      key: _formKey,
+      child: Column(
+        children: [
+          TextFormField(
+            controller: titleController,
+            decoration: const InputDecoration(
+              labelText: 'Title',
+              // filled: false,
+              prefixIcon: Icon(Icons.title),
+            ),
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          TextFormField(
+            controller: descriptionController,
+            decoration: const InputDecoration(
+              // contentPadding: EdgeInsets.fromLTRB(0, 0, 0, 150),
+              labelText: 'Short Description',
+              filled: false,
+              prefixIcon: Icon(Icons.description),
+            ),
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          TextFormField(
+            controller: dateController,
+            decoration: const InputDecoration(
+              labelText: 'Date',
+              filled: false,
+              prefixIcon: Icon(Icons.date_range),
+            ),
+            onTap: () => pick_date(),
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          TextFormField(
+            controller: locationController,
+            decoration: const InputDecoration(
+              labelText: 'Location',
+              filled: false,
+              prefixIcon: Icon(Icons.location_on),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: Text("Edit Todo")),
-        body: Container(
-          child: Column(
-            children: [
-              // Edit the task title, description, date, and location
-              TextField(
-                controller: titleController,
-                decoration: InputDecoration(
-                  hintText: "Title",
-                ),
-              ),
-              TextField(
-                controller: descriptionController,
-                decoration: InputDecoration(
-                  hintText: "Description",
-                ),
-              ),
-              TextField(
-                controller: dateController,
-                decoration: InputDecoration(
-                  hintText: "Date",
-                ),
-              ),
-              TextField(
-                controller: locationController,
-                decoration: InputDecoration(
-                  hintText: "Location",
-                ),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  editTodo();
-                  Navigator.pop(context);
-                },
-                child: Text("Edit"),
-              ),
-            ],
+      appBar: AppBar(
+        title: const Text("Edit Todo"),
+        actions: [
+          IconButton(
+            onPressed: () {
+              if (_formKey.currentState!.validate()) {
+                editTodo();
+                Navigator.pop(context);
+              } else {
+                print('Button is disabled');
+              }
+            },
+            icon: const Icon(Icons.check),
           ),
-        ));
+        ],
+      ),
+      body: SingleChildScrollView(
+          child: Container(
+              padding: const EdgeInsets.all(20),
+              child: _formEditTodo(context))),
+    );
   }
 }

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -21,7 +23,7 @@ class _AddNewTodoState extends State<AddNewTodo> {
   final TextEditingController locationController = TextEditingController();
   final TextEditingController isDoneController = TextEditingController();
   final TextEditingController tagController = TextEditingController();
-
+  String _locationLabel = 'Location';
   bool isButtonEnabled = false;
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -32,9 +34,11 @@ class _AddNewTodoState extends State<AddNewTodo> {
         title: titleController.text,
         description: descriptionController.text,
         date: Timestamp.fromDate(DateTime.parse(dateController.text)),
+        location: GeoPoint(
+          double.parse(locationController.text.split(',')[0]), // lat
+          double.parse(locationController.text.split(',')[1]), // lon
+        ),
       );
-      // date: DateTime.parse(dateController.text),
-      // location: locationController.text);
     } catch (e) {
       errorMessage = e.toString();
     }
@@ -42,12 +46,12 @@ class _AddNewTodoState extends State<AddNewTodo> {
 
   Widget _errorMessage(BuildContext context) {
     if (errorMessage != '') {
-      WidgetsBinding.instance!.addPostFrameCallback((_) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(errorMessage!),
             backgroundColor: Colors.red,
-            duration: Duration(seconds: 2),
+            duration: const Duration(seconds: 2),
           ),
         );
       });
@@ -59,7 +63,7 @@ class _AddNewTodoState extends State<AddNewTodo> {
     DateTime? date = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
-      firstDate: DateTime(2024),
+      firstDate: DateTime(DateTime.now().year),
       lastDate: DateTime(2100),
     );
     if (date != null) {
@@ -69,50 +73,50 @@ class _AddNewTodoState extends State<AddNewTodo> {
     }
   }
 
-  Widget _entryField(String title, TextEditingController controller) {
-    IconData? icon_gen;
-    if (title.toLowerCase() == "title") {
-      icon_gen = Icons.title;
-    } else if (title.toLowerCase() == "description") {
-      icon_gen = Icons.description;
-    } else if (title.toLowerCase() == "date") {
-      icon_gen = Icons.date_range;
-    } else if (title.toLowerCase() == "location") {
-      icon_gen = Icons.location_on;
-    } else {
-      icon_gen = Icons.error;
-    }
+  // Widget _entryField(String title, TextEditingController controller) {
+  //   IconData? iconGen;
+  //   if (title.toLowerCase() == "title") {
+  //     iconGen = Icons.title;
+  //   } else if (title.toLowerCase() == "description") {
+  //     iconGen = Icons.description;
+  //   } else if (title.toLowerCase() == "date") {
+  //     iconGen = Icons.date_range;
+  //   } else if (title.toLowerCase() == "location") {
+  //     iconGen = Icons.location_on;
+  //   } else {
+  //     iconGen = Icons.error;
+  //   }
 
-    return TextField(
-      controller: controller,
-      decoration: InputDecoration(
-        labelText: title,
-        // errorText: controller.text.isEmpty ? 'This field is required' : null,
-        filled: true,
-        prefixIcon: Icon(icon_gen),
-        enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.grey),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.black),
-        ),
-      ),
-      readOnly: title.toLowerCase() == 'date' ? true : false,
-      onTap: () {
-        if (title.toLowerCase() == 'date') {
-          pick_date();
-        }
-      },
-      onChanged: (value) {
-        setState(() {
-          isButtonEnabled = titleController.text.isNotEmpty &&
-              descriptionController.text.isNotEmpty &&
-              dateController.text.isNotEmpty &&
-              locationController.text.isNotEmpty;
-        });
-      },
-    );
-  }
+  //   return TextField(
+  //     controller: controller,
+  //     decoration: InputDecoration(
+  //       labelText: title,
+  //       // errorText: controller.text.isEmpty ? 'This field is required' : null,
+  //       filled: true,
+  //       prefixIcon: Icon(iconGen),
+  //       enabledBorder: const OutlineInputBorder(
+  //         borderSide: BorderSide(color: Colors.grey),
+  //       ),
+  //       focusedBorder: const OutlineInputBorder(
+  //         borderSide: BorderSide(color: Colors.black),
+  //       ),
+  //     ),
+  //     readOnly: title.toLowerCase() == 'date' ? true : false,
+  //     onTap: () {
+  //       if (title.toLowerCase() == 'date') {
+  //         pick_date();
+  //       }
+  //     },
+  //     onChanged: (value) {
+  //       setState(() {
+  //         isButtonEnabled = titleController.text.isNotEmpty &&
+  //             descriptionController.text.isNotEmpty &&
+  //             dateController.text.isNotEmpty &&
+  //             locationController.text.isNotEmpty;
+  //       });
+  //     },
+  //   );
+  // }
 
   Widget _formAddTodo(BuildContext context) {
     return Form(
@@ -123,14 +127,8 @@ class _AddNewTodoState extends State<AddNewTodo> {
             controller: titleController,
             decoration: const InputDecoration(
               labelText: 'Title',
-              filled: false,
+              // filled: false,
               prefixIcon: Icon(Icons.title),
-              enabledBorder: const OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.grey),
-              ),
-              focusedBorder: const OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.black),
-              ),
             ),
             validator: (value) =>
                 value!.isEmpty ? 'This field is required' : null,
@@ -141,16 +139,10 @@ class _AddNewTodoState extends State<AddNewTodo> {
           TextFormField(
             controller: descriptionController,
             decoration: const InputDecoration(
-              contentPadding: EdgeInsets.fromLTRB(0, 0, 0, 150),
-              labelText: 'Description',
+              // contentPadding: EdgeInsets.fromLTRB(0, 0, 0, 150),
+              labelText: 'Short Description',
               filled: false,
               prefixIcon: Icon(Icons.description),
-              enabledBorder: const OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.grey),
-              ),
-              focusedBorder: const OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.black),
-              ),
             ),
             validator: (value) =>
                 value!.isEmpty ? 'This field is required' : null,
@@ -158,37 +150,25 @@ class _AddNewTodoState extends State<AddNewTodo> {
           const SizedBox(
             height: 10,
           ),
-          TextFormField(
-            controller: tagController,
-            decoration: const InputDecoration(
-              labelText: 'Tag',
-              filled: false,
-              prefixIcon: Icon(Icons.tag),
-              enabledBorder: const OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.grey),
-              ),
-              focusedBorder: const OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.black),
-              ),
-            ),
-            validator: (value) =>
-                value!.isEmpty ? 'This field is required' : null,
-          ),
-          const SizedBox(
-            height: 10,
-          ),
+          // TextFormField(
+          //   controller: tagController,
+          //   decoration: const InputDecoration(
+          //     labelText: 'Tag',
+          //     filled: false,
+          //     prefixIcon: Icon(Icons.tag),
+          //   ),
+          //   validator: (value) =>
+          //       value!.isEmpty ? 'This field is required' : null,
+          // ),
+          // const SizedBox(
+          //   height: 10,
+          // ),
           TextFormField(
             controller: dateController,
             decoration: const InputDecoration(
               labelText: 'Date',
               filled: false,
               prefixIcon: Icon(Icons.date_range),
-              enabledBorder: const OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.grey),
-              ),
-              focusedBorder: const OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.black),
-              ),
             ),
             readOnly: true,
             onTap: () {
@@ -202,17 +182,24 @@ class _AddNewTodoState extends State<AddNewTodo> {
           ),
           TextFormField(
             controller: locationController,
-            decoration: const InputDecoration(
-              labelText: 'Location',
+            decoration: InputDecoration(
+              labelText: _locationLabel, // Use a variable for the label text
               filled: false,
-              prefixIcon: Icon(Icons.location_on),
-              enabledBorder: const OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.grey),
-              ),
-              focusedBorder: const OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.black),
-              ),
+              prefixIcon: const Icon(Icons.location_on),
             ),
+            onTap: () async {
+              final selectedLocation =
+                  await Navigator.pushNamed(context, '/map');
+              if (selectedLocation != null) {
+                setState(() {
+                  String locationString = selectedLocation as String;
+                  List<String> locationParts = locationString.split(',');
+                  String lat = locationParts[0];
+                  String lon = locationParts[1];
+                  locationController.text = '$lat, $lon';
+                });
+              }
+            },
             validator: (value) =>
                 value!.isEmpty ? 'This field is required' : null,
           ),
@@ -243,10 +230,12 @@ class _AddNewTodoState extends State<AddNewTodo> {
       body: SingleChildScrollView(
         child: Container(
           padding: const EdgeInsets.all(20),
-          margin: const EdgeInsets.only(top: 20, left: 20, right: 20),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-          ),
+          // margin:
+          //     const EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 20),
+          // decoration: BoxDecoration(
+          //   color: Colors.grey[300],
+          //   borderRadius: BorderRadius.circular(16),
+          // ),
           child: Column(
             children: [
               _formAddTodo(context),
