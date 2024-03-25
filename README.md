@@ -2,5 +2,10 @@
 
 The project is in progress. We'll update the readme on furthermore
 
+## Team Members
+
+6488133 Sirasit Puangpathanachai
+6488178 Thanawat Jarusuthirug
+
 ## Getting Started
 

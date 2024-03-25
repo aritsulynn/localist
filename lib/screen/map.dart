@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer' as developer;
 // import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter/material.dart';
@@ -73,12 +74,30 @@ class _mapTestState extends State<mapTest> {
                 "zoom": 10,
               },
               eventName: [
+                // JavascriptChannel(
+                //   name: "click",
+                //   onMessageReceived: (message) async {
+                //     var jsonObj = json.decode(message.message);
+                //     final location = map.currentState
+                //         ?.objectCall(jsonObj["data"], "location");
+                //     developer.log(location.toString(), name: 'this location');
+                //     developer.log("test", name: 'this2 location');
+                //   },
+                // ),
                 JavascriptChannel(
-                  name: "Click",
+                  name: "ready",
                   onMessageReceived: (message) async {
-                    var jsonObj = json.decode(message.message);
-                    final location = map.currentState
-                        ?.objectCall(jsonObj["data"], "location");
+                    var marker = Longdo.LongdoObject(
+                      "Marker",
+                      args: [
+                        {
+                          "lat": 13.8818018,
+                          "lon": 100.0247795,
+                        },
+                      ],
+                    );
+                    developer.log(marker.toString(), name: 'this marker');
+                    map.currentState?.call("Overlays.add", args: [marker]);
                   },
                 ),
               ],
