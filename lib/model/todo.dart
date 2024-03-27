@@ -32,6 +32,7 @@ class Todo {
         .collection('users')
         .doc(FirebaseAuth.instance.currentUser!.uid)
         .collection('todos')
+        .orderBy('isDone', descending: false)
         .snapshots();
   }
 

@@ -11,8 +11,14 @@ import 'package:localist/model/todo.dart';
 import 'package:localist/screen/add_new_todo.dart';
 import 'package:localist/screen/edit_todo.dart';
 
-class HomeScreen extends StatelessWidget {
-  HomeScreen({super.key});
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
   // const HomeScreen({super.key});
 
   final db = FirebaseFirestore.instance;
@@ -70,7 +76,7 @@ class HomeScreen extends StatelessWidget {
                 Map<String, dynamic> data =
                     todos[index].data() as Map<String, dynamic>;
                 return Container(
-                  margin: const EdgeInsets.only(bottom: 10),
+                  margin: const EdgeInsets.only(bottom: 5),
                   child: Dismissible(
                     key: Key(todos[index].id),
                     onDismissed: (direction) {
@@ -78,19 +84,29 @@ class HomeScreen extends StatelessWidget {
                         docId: todos[index].id,
                       );
                     },
-                    background: Container(color: Colors.red),
+                    direction: DismissDirection
+                        .endToStart, // slide from right to delete
+                    background: Container(
+                      color: Colors.red,
+                      alignment: Alignment.centerRight,
+                      padding: EdgeInsets.fromLTRB(0, 0, 15, 0),
+                      child: Icon(
+                        Icons.delete,
+                        color: Colors.white,
+                      ),
+                    ),
                     child: GestureDetector(
                       onTap: () {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) =>
-                                (EditScreen(docId: todos[index].id)),
+                                (EditTodo(docId: todos[index].id)),
                           ),
                         );
                       },
                       child: Card(
-                        color: Colors.orange,
+                        color: Colors.orange[400],
                         child: ListTile(
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20),
@@ -101,8 +117,8 @@ class HomeScreen extends StatelessWidget {
                                 scale: 1.5,
                                 child: Checkbox(
                                   value: data['isDone'],
-                                  side:
-                                      const BorderSide(color: Colors.white, width: 2),
+                                  side: const BorderSide(
+                                      color: Colors.white, width: 2),
                                   checkColor: Colors.white,
                                   activeColor: Colors.black,
                                   onChanged: (value) {
@@ -141,26 +157,109 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
+  Widget _buttomNavbar() {
+    return SizedBox(
+      height: kBottomNavigationBarHeight,
+      child: SafeArea(
+        minimum:
+            EdgeInsets.zero, // Remove any margin on the left and right sides
+        bottom: false, // Ensure bottom padding is zero
+        child: BottomAppBar(
+          padding: const EdgeInsets.symmetric(horizontal: 0),
+          // color: Colors.white,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Expanded(
+                flex: 1,
+                child: TextButton.icon(
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/addnewtodo');
+                  },
+                  style: ButtonStyle(
+                    shape: MaterialStateProperty.all<OutlinedBorder>(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.zero,
+                      ),
+                    ),
+                    alignment: Alignment.centerLeft,
+                  ),
+                  icon: const Icon(Icons.add, color: Colors.black),
+                  label: const Text("New list",
+                      style: TextStyle(color: Colors.black, fontSize: 16)),
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.search),
+                color: Colors.black,
+                onPressed: () {
+                  Navigator.pushNamed(context, '/search');
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  PreferredSizeWidget _topNavbar() {
+    return PreferredSize(
+      preferredSize: const Size.fromHeight(kToolbarHeight),
+      child: StreamBuilder(
+        stream: FirebaseFirestore.instance
+            .collection('users')
+            .doc(user?.uid)
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return AppBar(title: Text('Loading...'));
+          }
+          if (snapshot.error != null) {
+            return AppBar(title: Text('Error: ${snapshot.error}'));
+          }
+          if (!snapshot.hasData || snapshot.data?.data() == null) {
+            return AppBar(title: Text('No data found'));
+          }
+          final userData = snapshot.data!.data() as Map<String, dynamic>;
+          return AppBar(
+            title: Text("Welcome ${userData['username']}!" ?? 'N/A'),
+            leading: IconButton(
+              icon: ClipRRect(
+                borderRadius: BorderRadius.circular(200),
+                child: Image.asset(
+                  'assets/images/panda.jpg',
+                  width: 400,
+                  height: 400,
+                  fit: BoxFit.cover,
+                ),
+              ),
+              onPressed: () {
+                Navigator.pushNamed(context, '/profile');
+              },
+            ),
+          );
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("All Todos")),
+      appBar: _topNavbar(),
       body: Container(
         height: double.infinity,
         width: double.infinity,
         padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
-          // mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            // _userUID(),
-            // const Text("All Todos", style: TextStyle(fontSize: 20)),
             _todotile2(),
           ],
         ),
       ),
-      floatingActionButton: _floatingAddButton(context),
-      drawer: const NavigationDrawerCustom(),
+      bottomNavigationBar: _buttomNavbar(),
     );
   }
 }

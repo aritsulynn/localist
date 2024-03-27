@@ -1,14 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-// import 'package:localist/data/user_profile.dart';
-// import 'package:localist/model/numbers_widget.dart';
 import 'package:localist/screen/edit_profile.dart';
-// import 'package:provider/provider.dart';
 
 class MyProfile extends StatefulWidget {
-  final String? name;
-  const MyProfile(this.name, {super.key});
+  const MyProfile({super.key});
   @override
   State<MyProfile> createState() {
     return _MyProfileState();
@@ -32,7 +28,9 @@ class _MyProfileState extends State<MyProfile> {
           buildTop(),
           buildContent(),
           buildNumberSection(),
-          buildButton(),
+          _editProfileButton(),
+          _settingButton(),
+          _supportButton(),
         ],
       ),
       // bottomNavigationBar: buildButton(),
@@ -141,31 +139,50 @@ class _MyProfileState extends State<MyProfile> {
     return const NumberWidget();
   }
 
-  Widget buildButton() {
+  Widget _editProfileButton() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
       child: SizedBox(
         width: double.infinity,
         child: ElevatedButton(
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => const EditProfile(),
-                ),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.black,
-                backgroundColor: const Color.fromARGB(255, 219, 219, 219),
-                shadowColor: Colors.black,
-                elevation: 5,
-                textStyle: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-                padding: const EdgeInsets.fromLTRB(0, 10, 10, 10)),
-            child: const Text('Edit Profile')),
+          onPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => const EditProfile(),
+              ),
+            );
+          },
+          style: ElevatedButton.styleFrom(
+              foregroundColor: Colors.black,
+              backgroundColor: const Color.fromARGB(255, 219, 219, 219),
+              shadowColor: Colors.black,
+              elevation: 5,
+              textStyle: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+              padding: const EdgeInsets.fromLTRB(0, 10, 10, 10)),
+          child: const Text('Edit Profile'),
+        ),
       ),
+    );
+  }
+
+  Widget _settingButton() {
+    return IconButton(
+      icon: const Icon(Icons.settings),
+      onPressed: () {
+        Navigator.of(context).pushNamed('/setting');
+      },
+    );
+  }
+
+  Widget _supportButton() {
+    return IconButton(
+      icon: const Icon(Icons.help),
+      onPressed: () {
+        Navigator.of(context).pushNamed('/support');
+      },
     );
   }
 }

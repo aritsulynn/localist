@@ -6,14 +6,14 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:longdo_maps_api3_flutter/longdo_maps_api3_flutter.dart';
 
-class mapTest extends StatefulWidget {
-  const mapTest({super.key});
+class MapSelection extends StatefulWidget {
+  const MapSelection({super.key});
 
   @override
-  State<mapTest> createState() => _mapTestState();
+  State<MapSelection> createState() => _MapSelectionState();
 }
 
-class _mapTestState extends State<mapTest> {
+class _MapSelectionState extends State<MapSelection> {
   LatLng _center = const LatLng(13.8818018, 100.0247795); // Default location
   late LatLng _latlontest = const LatLng(0, 0);
   @override
@@ -84,22 +84,22 @@ class _mapTestState extends State<mapTest> {
                 //     developer.log("test", name: 'this2 location');
                 //   },
                 // ),
-                JavascriptChannel(
-                  name: "ready",
-                  onMessageReceived: (message) async {
-                    var marker = Longdo.LongdoObject(
-                      "Marker",
-                      args: [
-                        {
-                          "lat": 13.8818018,
-                          "lon": 100.0247795,
-                        },
-                      ],
-                    );
-                    developer.log(marker.toString(), name: 'this marker');
-                    map.currentState?.call("Overlays.add", args: [marker]);
-                  },
-                ),
+                // JavascriptChannel(
+                //   name: "ready",
+                //   onMessageReceived: (message) async {
+                //     var marker = Longdo.LongdoObject(
+                //       "Marker",
+                //       args: [
+                //         {
+                //           "lat": 13.8818018,
+                //           "lon": 100.0247795,
+                //         },
+                //       ],
+                //     );
+                //     developer.log(marker.toString(), name: 'this marker');
+                //     map.currentState?.call("Overlays.add", args: [marker]);
+                //   },
+                // ),
               ],
             ),
           ),

@@ -144,6 +144,8 @@ class _AddNewTodoState extends State<AddNewTodo> {
               filled: false,
               prefixIcon: Icon(Icons.description),
             ),
+            maxLines: null,
+            keyboardType: TextInputType.multiline,
             validator: (value) =>
                 value!.isEmpty ? 'This field is required' : null,
           ),
@@ -200,8 +202,8 @@ class _AddNewTodoState extends State<AddNewTodo> {
                 });
               }
             },
-            validator: (value) =>
-                value!.isEmpty ? 'This field is required' : null,
+            // validator: (value) =>
+            //     value!.isEmpty ? 'This field is required' : null,
           ),
         ],
       ),
