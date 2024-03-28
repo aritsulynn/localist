@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:localist/model/auth.dart';
 import 'package:localist/screen/edit_profile.dart';
 
 class MyProfile extends StatefulWidget {
@@ -18,6 +19,12 @@ class _MyProfileState extends State<MyProfile> {
   final double coverHeight = 280;
   final double profileHeight = 100;
 
+  Future<void> signOut(BuildContext context) async {
+    Navigator.popUntil(context, ModalRoute.withName('/')); // pop until root
+    Navigator.pushNamed(context, '/');
+    await Auth().signOut();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,7 +37,9 @@ class _MyProfileState extends State<MyProfile> {
           buildNumberSection(),
           _editProfileButton(),
           _settingButton(),
+          _aboutButton(),
           _supportButton(),
+          _logoutButton(),
         ],
       ),
       // bottomNavigationBar: buildButton(),
@@ -177,11 +186,29 @@ class _MyProfileState extends State<MyProfile> {
     );
   }
 
+  Widget _aboutButton() {
+    return IconButton(
+      icon: const Icon(Icons.info),
+      onPressed: () {
+        Navigator.of(context).pushNamed('/aboutus');
+      },
+    );
+  }
+
   Widget _supportButton() {
     return IconButton(
       icon: const Icon(Icons.help),
       onPressed: () {
         Navigator.of(context).pushNamed('/support');
+      },
+    );
+  }
+
+  Widget _logoutButton() {
+    return IconButton(
+      icon: const Icon(Icons.logout),
+      onPressed: () {
+        signOut(context);
       },
     );
   }

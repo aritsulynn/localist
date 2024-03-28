@@ -224,19 +224,20 @@ class _HomeScreenState extends State<HomeScreen> {
           final userData = snapshot.data!.data() as Map<String, dynamic>;
           return AppBar(
             title: Text("Welcome ${userData['username']}!" ?? 'N/A'),
-            leading: IconButton(
-              icon: ClipRRect(
-                borderRadius: BorderRadius.circular(200),
-                child: Image.asset(
-                  'assets/images/panda.jpg',
-                  width: 400,
-                  height: 400,
-                  fit: BoxFit.cover,
+            leading: Container(
+              margin: EdgeInsets.only(left: 10),
+              child: IconButton(
+                icon: ClipRRect(
+                  borderRadius: BorderRadius.circular(200),
+                  child: Image.asset(
+                    'assets/images/panda.jpg',
+                    fit: BoxFit.cover,
+                  ),
                 ),
+                onPressed: () {
+                  Navigator.pushNamed(context, '/profile');
+                },
               ),
-              onPressed: () {
-                Navigator.pushNamed(context, '/profile');
-              },
             ),
           );
         },

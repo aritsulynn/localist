@@ -34,7 +34,7 @@ class _EditProfileState extends State<EditProfile> {
               ),
             ),
           ),
-          const SizedBox(height: 30),
+          const SizedBox(height: 5),
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
             child: TextField(
