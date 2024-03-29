@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:localist/model/auth.dart';
 import 'package:localist/screen/edit_profile.dart';
+import 'package:localist/model/todo.dart';
 
 class MyProfile extends StatefulWidget {
   const MyProfile({super.key});
@@ -23,6 +24,18 @@ class _MyProfileState extends State<MyProfile> {
     Navigator.popUntil(context, ModalRoute.withName('/')); // pop until root
     Navigator.pushNamed(context, '/');
     await Auth().signOut();
+  }
+
+  Future<int> _getTaskCount(bool isCompleted) async {
+    final querySnapshot = await FirebaseFirestore.instance
+        .collection('tasks')
+        .where('userId',
+            isEqualTo:
+                currentUser.uid) // Assuming tasks are filtered by user ID
+        .where('isDone', isEqualTo: isCompleted)
+        .get();
+
+    return querySnapshot.docs.length;
   }
 
   @override
@@ -150,7 +163,36 @@ class _MyProfileState extends State<MyProfile> {
   }
 
   Widget buildNumberSection() {
-    return const NumberWidget();
+    return StreamBuilder<QuerySnapshot>(
+      stream: Todo().getAllTodos(), // Use the stream from the Todo class
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const CircularProgressIndicator();
+        }
+        if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        }
+
+        int totalTasks = 0;
+        int completedTasks = 0;
+        int ongoingTasks = 0;
+
+        if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
+          // Only calculate counts if there are tasks
+          totalTasks = snapshot.data!.docs.length;
+          completedTasks =
+              snapshot.data!.docs.where((doc) => doc['isDone'] as bool).length;
+          ongoingTasks = totalTasks - completedTasks;
+        }
+
+        // Always return NumberWidget with the calculated or default counts
+        return NumberWidget(
+          totalTasks: totalTasks,
+          ongoingTasks: ongoingTasks,
+          completedTasks: completedTasks,
+        );
+      },
+    );
   }
 
   Widget _editProfileButton() {
@@ -236,18 +278,27 @@ class ImageDialog extends StatelessWidget {
 }
 
 class NumberWidget extends StatelessWidget {
-  const NumberWidget({super.key});
+  final int totalTasks;
+  final int ongoingTasks;
+  final int completedTasks;
+
+  const NumberWidget({
+    super.key,
+    required this.totalTasks,
+    required this.ongoingTasks,
+    required this.completedTasks,
+  });
 
   @override
   Widget build(context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
-        buildButton(text: 'TOTAL', value: 12),
+        buildButton(text: 'TOTAL', value: totalTasks),
         buildDivider(),
-        buildButton(text: 'ONGOING', value: 3),
+        buildButton(text: 'ONGOING', value: ongoingTasks),
         buildDivider(),
-        buildButton(text: 'COMPLETED', value: 9),
+        buildButton(text: 'COMPLETED', value: completedTasks),
       ],
     );
   }
