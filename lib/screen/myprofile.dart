@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:localist/main.dart';
 import 'package:localist/model/auth.dart';
 import 'package:localist/screen/edit_profile.dart';
 import 'package:localist/model/todo.dart';
@@ -48,6 +49,7 @@ class _MyProfileState extends State<MyProfile> {
           buildTop(),
           buildContent(),
           buildNumberSection(),
+          const SizedBox(height: 20),
           _editProfileButton(),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -164,32 +166,46 @@ class _MyProfileState extends State<MyProfile> {
 
   Widget buildNumberSection() {
     return StreamBuilder<QuerySnapshot>(
-      stream: Todo().getAllTodos(), // Use the stream from the Todo class
+      stream: Todo().getAllTodos(),
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const CircularProgressIndicator();
-        }
-        if (snapshot.hasError) {
-          return Text('Error: ${snapshot.error}');
-        }
-
         int totalTasks = 0;
         int completedTasks = 0;
         int ongoingTasks = 0;
 
         if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
-          // Only calculate counts if there are tasks
           totalTasks = snapshot.data!.docs.length;
           completedTasks =
               snapshot.data!.docs.where((doc) => doc['isDone'] as bool).length;
           ongoingTasks = totalTasks - completedTasks;
         }
 
-        // Always return NumberWidget with the calculated or default counts
         return NumberWidget(
           totalTasks: totalTasks,
           ongoingTasks: ongoingTasks,
           completedTasks: completedTasks,
+          onTotalTap: () {
+            Navigator.pushNamed(
+              context,
+              '/tasklistscreen',
+              arguments: TaskListArguments(userId: currentUser.uid),
+            );
+          },
+          onOngoingTap: () {
+            Navigator.pushNamed(
+              context,
+              '/tasklistscreen',
+              arguments: TaskListArguments(
+                  userId: currentUser.uid, showCompleted: false),
+            );
+          },
+          onCompletedTap: () {
+            Navigator.pushNamed(
+              context,
+              '/tasklistscreen',
+              arguments: TaskListArguments(
+                  userId: currentUser.uid, showCompleted: true),
+            );
+          },
         );
       },
     );
@@ -281,57 +297,83 @@ class NumberWidget extends StatelessWidget {
   final int totalTasks;
   final int ongoingTasks;
   final int completedTasks;
+  final VoidCallback onTotalTap;
+  final VoidCallback onOngoingTap;
+  final VoidCallback onCompletedTap;
 
   const NumberWidget({
     super.key,
     required this.totalTasks,
     required this.ongoingTasks,
     required this.completedTasks,
+    required this.onTotalTap,
+    required this.onOngoingTap,
+    required this.onCompletedTap,
   });
 
   @override
-  Widget build(context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        buildButton(text: 'TOTAL', value: totalTasks),
-        buildDivider(),
-        buildButton(text: 'ONGOING', value: ongoingTasks),
-        buildDivider(),
-        buildButton(text: 'COMPLETED', value: completedTasks),
-      ],
+  Widget build(BuildContext context) {
+    return IntrinsicHeight(
+      // Ensuring the dividers have the same height as buttons
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Expanded(
+            child: buildButton(
+              text: 'TOTAL',
+              value: totalTasks,
+              onTap: onTotalTap,
+            ),
+          ),
+          buildDivider(),
+          Expanded(
+            child: buildButton(
+              text: 'ONGOING',
+              value: ongoingTasks,
+              onTap: onOngoingTap,
+            ),
+          ),
+          buildDivider(),
+          Expanded(
+            child: buildButton(
+              text: 'COMPLETED',
+              value: completedTasks,
+              onTap: onCompletedTap,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
-  Widget buildButton({required String text, required int value}) {
-    return MaterialButton(
-        onPressed: () {},
-        padding: const EdgeInsets.symmetric(vertical: 4),
-        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            Text(
-              '$value',
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              text,
-              style: const TextStyle(fontSize: 16),
-            )
-          ],
-        ));
+  Widget buildButton({
+    required String text,
+    required int value,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Text(
+            '$value',
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            text,
+            style: const TextStyle(fontSize: 16),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget buildDivider() {
     return Container(
-      height: 0, // Adjust the height to fit your design
-      width: 1, // This will be the thickness of the divider
-      color: Colors.grey, // Choose a color that fits your app's theme
-      margin: const EdgeInsets.symmetric(
-          horizontal: 12), // Add some spacing on both sides
+      width: 1,
+      margin: const EdgeInsets.symmetric(horizontal: 8),
     );
   }
 }

@@ -9,8 +9,8 @@ import 'package:localist/screen/register_login.dart';
 import 'package:localist/screen/myprofile.dart';
 import 'package:localist/screen/search.dart';
 import 'package:localist/screen/setting.dart';
-import 'package:localist/screen/edit_todo.dart';
 import 'package:localist/screen/support.dart';
+import 'package:localist/screen/task_list_screen.dart';
 import 'firebase_options.dart';
 
 // test
@@ -61,6 +61,27 @@ class MyApp extends StatelessWidget {
         '/setting': (context) => const SettingPage(),
         '/support': (context) => const Support(),
       },
+      onGenerateRoute: (RouteSettings settings) {
+        if (settings.name == '/tasklistscreen') {
+          final args = settings.arguments as TaskListArguments;
+          return MaterialPageRoute(
+            builder: (context) => TaskListScreen(
+              userId: args.userId,
+              showCompleted: args.showCompleted,
+            ),
+          );
+        }
+        // If the route name does not match any predefined paths,
+        // you can return null or define a default behavior
+        return null;
+      },
     );
   }
+}
+
+class TaskListArguments {
+  final String userId;
+  final bool? showCompleted;
+
+  TaskListArguments({required this.userId, this.showCompleted});
 }
