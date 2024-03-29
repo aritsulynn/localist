@@ -11,6 +11,15 @@ class SettingPage extends StatefulWidget {
 class _SettingPageState extends State<SettingPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
+  Future<void> _reauthenticateAndDelete() async {
+    try {
+      final providerData = _auth.currentUser?.providerData.first;
+      await _auth.currentUser?.delete();
+    } catch (e) {
+      // Handle exceptions
+    }
+  }
+
   Future<void> _deleteAccount() async {
     try {
       // Get the currently signed-in user
@@ -22,17 +31,27 @@ class _SettingPageState extends State<SettingPage> {
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
-              title: const Text('Delete Account'),
-              content:
-                  const Text('Are you sure you want to delete your account?'),
+              backgroundColor: const Color.fromARGB(255, 20, 20, 20),
+              title: const Text('Delete Account',
+                  style: TextStyle(
+                      color: Colors.white, fontWeight: FontWeight.bold)),
+              content: const Text(
+                  'Are you sure you want to delete your account?',
+                  style: TextStyle(color: Colors.white)),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(false),
-                  child: const Text('Cancel'),
+                  child: const Text(
+                    'Cancel',
+                    style: TextStyle(color: Colors.white),
+                  ),
                 ),
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(true),
-                  child: const Text('Delete'),
+                  child: const Text(
+                    'Delete',
+                    style: TextStyle(color: Color.fromARGB(255, 160, 29, 29)),
+                  ),
                 ),
               ],
             );
@@ -41,7 +60,8 @@ class _SettingPageState extends State<SettingPage> {
 
         if (confirmDelete) {
           // Delete the user account
-          await user.delete();
+          await _reauthenticateAndDelete();
+          Navigator.popUntil(context, ModalRoute.withName('/'));
           // Optionally, you can navigate to a different page or perform additional actions
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -71,6 +91,8 @@ class _SettingPageState extends State<SettingPage> {
           onPressed: _deleteAccount,
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.red,
+            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+            textStyle: const TextStyle(fontSize: 20),
           ),
           child: const Text(
             'Delete Account',

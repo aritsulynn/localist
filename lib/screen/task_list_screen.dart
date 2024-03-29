@@ -40,21 +40,59 @@ class TaskListScreen extends StatelessWidget {
             return Center(child: Text('Error: ${snapshot.error.toString()}'));
           }
 
-          if (snapshot.hasData) {
-            return ListView(
-              children: snapshot.data!.docs.map((document) {
-                Map<String, dynamic> data =
-                    document.data()! as Map<String, dynamic>;
-                return ListTile(
-                  title: Text(data['title'] ?? 'No Title'),
-                  subtitle: Text(data['description'] ?? 'No Description'),
-                );
-              }).toList(),
+          if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
+            return ListView.builder(
+              padding: const EdgeInsets.all(8),
+              itemCount: snapshot.data!.docs.length,
+              itemBuilder: (context, index) {
+                var data =
+                    snapshot.data!.docs[index].data() as Map<String, dynamic>;
+                return TaskCard(data: data);
+              },
             );
           } else {
-            return const Text('No data');
+            return const Center(child: Text('No tasks available'));
           }
         },
+      ),
+    );
+  }
+}
+
+class TaskCard extends StatelessWidget {
+  final Map<String, dynamic> data;
+
+  const TaskCard({
+    Key? key,
+    required this.data,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 2,
+      margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Text(
+              data['title'] ?? 'No Title',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: const Color.fromARGB(255, 0, 0, 0),
+              ),
+            ),
+            SizedBox(height: 8),
+            Text(
+              data['description'] ?? 'No Description',
+              style: TextStyle(
+                  fontSize: 14, color: const Color.fromARGB(255, 65, 64, 64)),
+            ),
+          ],
+        ),
       ),
     );
   }
