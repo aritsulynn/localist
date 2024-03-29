@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:localist/model/auth.dart';
-import 'package:localist/model/drawer.dart';
 
 // TODO Things
 import 'package:localist/model/todo.dart';

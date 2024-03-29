@@ -1,18 +1,10 @@
-import 'dart:convert';
-import 'dart:ffi';
-import 'dart:io';
 import 'dart:developer' as developer;
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/widgets.dart';
 import 'package:localist/model/auth.dart';
-import 'package:latlong2/latlong.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:longdo_maps_api3_flutter/longdo_maps_api3_flutter.dart';
-import 'package:longdo_maps_api3_flutter/view.dart';
 
 class EditTodo extends StatefulWidget {
   final String docId;
@@ -198,7 +190,11 @@ class _EditTodoState extends State<EditTodo> {
     return LongdoMapWidget(
       apiKey: "75feccc26ae0b1138916c66602a2e791",
       key: map,
-      options: const {
+      options: {
+        "location": {
+          "lat": latitude,
+          "lon": longitude,
+        },
         "zoom": 10,
       },
       eventName: [

@@ -13,7 +13,7 @@ class _SettingPageState extends State<SettingPage> {
 
   Future<void> _reauthenticateAndDelete() async {
     try {
-      final providerData = _auth.currentUser?.providerData.first;
+      // final providerData = _auth.currentUser?.providerData.first;
       await _auth.currentUser?.delete();
     } catch (e) {
       // Handle exceptions
