@@ -6,25 +6,99 @@ class AboutUs extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: const Text('About us'),
-        ),
-        body: Container(
-          height: double.infinity,
-          width: double.infinity,
+      appBar: AppBar(
+        title: const Text('About Us'),
+      ),
+      body: SingleChildScrollView(
+        child: Container(
           padding: const EdgeInsets.all(20),
-          child: const Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Text("Localist", style: TextStyle(fontSize: 40)),
-              SizedBox(height: 20),
-              Text(
-                "Localist is a simple todo app that allows you to add, edit, and delete your todos. It is built using Flutter and Firebase.",
-                style: TextStyle(fontSize: 20),
+              Center(
+                child: Column(
+                  children: [
+                    ClipOval(
+                      child: Image.asset(
+                        'assets/icon/app_icon.png',
+                        width: 100,
+                        height: 100,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Text(
+                      "Localist",
+                      style: TextStyle(
+                          fontSize: 40,
+                          fontWeight: FontWeight.bold,
+                          color: Colors
+                              .grey[850]), // Slightly lighter than the AppBar
+                    ),
+                  ],
+                ),
               ),
+              const SizedBox(height: 30),
+              Text(
+                "Discover Localist",
+                style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87), // Soft black
+              ),
+              const SizedBox(height: 10),
+              Text(
+                "Localist is a powerful task management tool with a unique feature: it smoothly integrates map locations. Whether you're planning a journey or arranging daily tasks, Localist allows you to easily add, edit, and remove tasks to keep you organized.",
+                style: TextStyle(
+                    fontSize: 18,
+                    color:
+                        Colors.grey[600]), // Medium gray for better readability
+              ),
+              const SizedBox(height: 20),
+              Divider(color: Colors.grey[400]), // Decorative divider
+              const SizedBox(height: 20),
+              Text(
+                "Built with Passion",
+                style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                "Localist was designed and developed using innovative technologies, utilizing the power of Flutter and Firebase to provide a seamless, efficient, and powerful experience.",
+                style: TextStyle(fontSize: 18, color: Colors.grey[600]),
+              ),
+              const SizedBox(height: 10),
+              Divider(color: Colors.grey[400]),
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  Image.asset(
+                    'assets/icon/Flutter_logo.png',
+                    width: 100,
+                  ),
+                  Image.asset(
+                    'assets/icon/Firebase_logo.png',
+                    width: 140,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              const Center(
+                  child: Text(
+                "Powered by Flutter & Firebase",
+                style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Color.fromARGB(221, 0, 0, 0)),
+              )),
+              const SizedBox(height: 10),
             ],
           ),
-        ));
+        ),
+      ),
+    );
   }
 }

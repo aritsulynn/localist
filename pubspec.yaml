@@ -59,3 +59,5 @@ flutter:
       - assets/icon/icon.png
       - assets/images/cover.jpg
       - assets/images/panda.jpg
+      - assets/icon/Flutter_logo.png
+      - assets/icon/Firebase_logo.png
