@@ -1,10 +1,13 @@
 import 'dart:convert';
 import 'dart:developer' as developer;
 // import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/widgets.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:longdo_maps_api3_flutter/longdo_maps_api3_flutter.dart';
+import 'dart:async';
 
 class MapSelection extends StatefulWidget {
   const MapSelection({super.key});
@@ -14,12 +17,14 @@ class MapSelection extends StatefulWidget {
 }
 
 class _MapSelectionState extends State<MapSelection> {
-  LatLng _center = const LatLng(13.8818018, 100.0247795); // Default location
-  late LatLng _latlontest = const LatLng(0, 0);
+  double latitude = 0.0;
+  double longitude = 0.0;
+  final Completer<void> _locationCompleter = Completer<void>();
+
   @override
   void initState() {
     super.initState();
-    // _updateLocation();
+    _updateLocation().then((_) => _locationCompleter.complete());
   }
 
   Future<Position> _getCurrentLocation() async {
@@ -47,12 +52,14 @@ class _MapSelectionState extends State<MapSelection> {
     return await Geolocator.getCurrentPosition();
   }
 
-  // void _updateLocation() async {
-  //   Position position = await _getCurrentLocation();
-  //   setState(() {
-  //     _center = LatLng(position.latitude, position.longitude);
-  //   });
-  // }
+  Future<void> _updateLocation() async {
+    final Position position = await _getCurrentLocation();
+    setState(() {
+      latitude = position.latitude;
+      longitude = position.longitude;
+    });
+    developer.log('Latitude: $latitude, Longitude: $longitude');
+  }
 
   final map = GlobalKey<LongdoMapState>();
   final GlobalKey<ScaffoldMessengerState> messenger =
@@ -61,79 +68,58 @@ class _MapSelectionState extends State<MapSelection> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-          child: Column(
-        children: [
-          Expanded(
-            flex: 2,
-            child: LongdoMapWidget(
-              apiKey: "75feccc26ae0b1138916c66602a2e791",
-              key: map,
-              options: const {
-                "location": {"lat": 13.8818018, "lon": 100.0247795},
-                "zoom": 10,
-              },
-              eventName: [
-                // JavascriptChannel(
-                //   name: "click",
-                //   onMessageReceived: (message) async {
-                //     var jsonObj = json.decode(message.message);
-                //     final location = map.currentState
-                //         ?.objectCall(jsonObj["data"], "location");
-                //     developer.log(location.toString(), name: 'this location');
-                //     developer.log("test", name: 'this2 location');
-                //   },
-                // ),
-                // JavascriptChannel(
-                //   name: "ready",
-                //   onMessageReceived: (message) async {
-                //     var marker = Longdo.LongdoObject(
-                //       "Marker",
-                //       args: [
-                //         {
-                //           "lat": 13.8818018,
-                //           "lon": 100.0247795,
-                //         },
-                //       ],
-                //     );
-                //     developer.log(marker.toString(), name: 'this marker');
-                //     map.currentState?.call("Overlays.add", args: [marker]);
-                //   },
-                // ),
+      appBar: AppBar(
+        title: const Text('Select Location'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+      ),
+      body: FutureBuilder<void>(
+        future: _locationCompleter.future,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else {
+            return Column(
+              children: [
+                Expanded(
+                  flex: 2,
+                  child: LongdoMapWidget(
+                    apiKey: "75feccc26ae0b1138916c66602a2e791",
+                    key: map,
+                    options: {
+                      "location": {"lat": latitude, "lon": longitude},
+                      "zoom": 10,
+                    },
+                    eventName: [],
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    final locationObj =
+                        await map.currentState?.call("location");
+                    if (locationObj != null) {
+                      final locationString = locationObj.toString();
+                      Map<String, dynamic> location =
+                          json.decode(locationString);
+                      double lat = location['lat'];
+                      double lon = location['lon'];
+                      String latlon = lat.toString() + ',' + lon.toString();
+                      Navigator.pop(context, latlon);
+                    } else {
+                      print('Failed to retrieve location data');
+                    }
+                  },
+                  child: const Text('Get Current Location'),
+                ),
               ],
-            ),
-          ),
-          // ElevatedButton(
-          //   onPressed: () async {
-          //     // print(_center);
-          //     final locationObj = map.currentState?.call("location");
-          //     final locationString = locationObj.toString();
-          //     Map<String, dynamic> location = json.decode(locationString);
-          //     // final location = json.decode(locationObj);
-          //     // print(location);
-          //     // Navigator.pop(context, location);
-          //     Navigator.pop(context, location);
-          //   },
-          //   child: const Text('Get Current Location'),
-          // ),
-          ElevatedButton(
-            onPressed: () async {
-              final locationObj = await map.currentState?.call("location");
-              if (locationObj != null) {
-                final locationString = locationObj.toString();
-                Map<String, dynamic> location = json.decode(locationString);
-                double lat = location['lat'];
-                double lon = location['lon'];
-                String latlon = lat.toString() + ',' + lon.toString();
-                Navigator.pop(context, latlon);
-              } else {
-                print('Failed to retrieve location data');
-              }
-            },
-            child: const Text('Get Current Location'),
-          ),
-        ],
-      )),
+            );
+          }
+        },
+      ),
     );
   }
 }

@@ -31,6 +31,7 @@ class _EditTodoState extends State<EditTodo> {
   final TextEditingController descriptionController = TextEditingController();
   final TextEditingController dateController = TextEditingController();
   final TextEditingController locationController = TextEditingController();
+  bool _locationDataAvailable = false;
 
   Future<void> editTodo() async {
     try {
@@ -66,6 +67,9 @@ class _EditTodoState extends State<EditTodo> {
       dateController.text =
           documentSnapshot['date'].toDate().toString().split(' ')[0];
       locationController.text = formatLocation(documentSnapshot['location']);
+      setState(() {
+        _locationDataAvailable = true; // Set the state to true
+      });
     } catch (e) {
       errorMessage = e.toString();
     }
@@ -150,7 +154,6 @@ class _EditTodoState extends State<EditTodo> {
                   String lat = locationParts[0];
                   String lon = locationParts[1];
                   locationController.text = '$lat, $lon';
-                  getTodoDetail();
                 });
               }
             },
@@ -162,6 +165,7 @@ class _EditTodoState extends State<EditTodo> {
     );
   }
 
+  // final map = GlobalKey<LongdoMapState>();
   final map = GlobalKey<LongdoMapState>();
 
   String formatLocation(GeoPoint location) {
@@ -169,10 +173,12 @@ class _EditTodoState extends State<EditTodo> {
   }
 
   LongdoMapWidget _map4() {
-    // Get location from locationController, handle empty string case
+    if (!_locationDataAvailable) {
+      return const LongdoMapWidget();
+    }
+
     final location = locationController.text.trim();
 
-    // Try parsing location into lat/lng if provided
     double? latitude;
     double? longitude;
     if (location.isNotEmpty) {
@@ -185,10 +191,6 @@ class _EditTodoState extends State<EditTodo> {
             name: 'location_error');
       }
     }
-
-    // Use default or parsed values for latitude and longitude
-    latitude ??= 13.7245995;
-    longitude ??= 100.6331108;
 
     developer.log(latitude.toString(), name: 'latitude');
     developer.log(longitude.toString(), name: 'longitude');
@@ -212,60 +214,13 @@ class _EditTodoState extends State<EditTodo> {
                 },
               ],
             );
+            developer.log(marker.toString(), name: 'this marker');
             map.currentState?.call("Overlays.add", args: [marker]);
           },
         ),
       ],
     );
   }
-
-  // Future<LongdoMapWidget> _map5() async {
-  //   final location = locationController.text.trim();
-
-  //   double? latitude;
-  //   double? longitude;
-  //   if (location.isNotEmpty) {
-  //     try {
-  //       final locationParts = location.split(',');
-  //       latitude = double.parse(locationParts[0]);
-  //       longitude = double.parse(locationParts[1]);
-  //     } catch (e) {
-  //       developer.log('Invalid location format: $location',
-  //           name: 'location_error');
-  //     }
-  //   }
-
-  //   latitude ??= 13.7245995;
-  //   longitude ??= 100.6331108;
-
-  //   developer.log(latitude.toString(), name: 'latitude');
-  //   developer.log(longitude.toString(), name: 'longitude');
-
-  //   return LongdoMapWidget(
-  //     apiKey: "75feccc26ae0b1138916c66602a2e791",
-  //     key: map,
-  //     options: const {
-  //       "zoom": 10,
-  //     },
-  //     eventName: [
-  //       JavascriptChannel(
-  //         name: "ready",
-  //         onMessageReceived: (message) async {
-  //           final marker = Longdo.LongdoObject(
-  //             "Marker",
-  //             args: [
-  //               {
-  //                 "lat": latitude,
-  //                 "lon": longitude,
-  //               },
-  //             ],
-  //           );
-  //           map.currentState?.call("Overlays.add", args: [marker]);
-  //         },
-  //       ),
-  //     ],
-  //   );
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -293,7 +248,7 @@ class _EditTodoState extends State<EditTodo> {
               padding: const EdgeInsets.all(20),
               child: _formEditTodo(context),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Container(
               padding: const EdgeInsets.all(20),
               child: SizedBox(
