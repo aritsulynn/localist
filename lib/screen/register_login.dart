@@ -11,6 +11,7 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
+  final _formKey = GlobalKey<FormState>(); // Add this line
   String? errorMessage = '';
   bool isLogin = true;
 
@@ -48,20 +49,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
     TextEditingController controller,
   ) {
     IconData? iconData;
-
+    bool isPassword = title.toLowerCase() == 'password';
     if (title.toLowerCase() == 'email') iconData = Icons.email;
-    if (title.toLowerCase() == 'password') iconData = Icons.lock;
+    if (isPassword) iconData = Icons.lock;
 
-    return TextField(
+    return TextFormField(
       controller: controller,
-      keyboardType: title.toLowerCase() == 'Email'
-          ? TextInputType.emailAddress
-          : TextInputType.text,
-      obscureText: title.toLowerCase() == 'password',
+      keyboardType:
+          isPassword ? TextInputType.text : TextInputType.emailAddress,
+      obscureText: isPassword,
       decoration: InputDecoration(
         labelText: title,
         prefixIcon: iconData != null ? Icon(iconData) : null,
       ),
+      validator: (value) {
+        // Add this block
+        if (value == null || value.isEmpty) {
+          return 'Please enter your $title';
+        }
+        return null;
+      },
     );
   }
 
@@ -82,10 +89,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   Widget _submitButton() {
     return ElevatedButton(
-      onPressed:
-          isLogin ? signInWithEmailAndPassword : createUserWithEmailAndPassword,
+      onPressed: () {
+        if (_formKey.currentState!.validate()) {
+          // Check form validation
+          isLogin
+              ? signInWithEmailAndPassword()
+              : createUserWithEmailAndPassword();
+        }
+      },
       style: ButtonStyle(
-          minimumSize: MaterialStateProperty.all(const Size(double.infinity, 50)),
+          minimumSize:
+              MaterialStateProperty.all(const Size(double.infinity, 50)),
           backgroundColor: MaterialStateProperty.all(Colors.black),
           shape: MaterialStateProperty.all<RoundedRectangleBorder>(
             RoundedRectangleBorder(
@@ -103,12 +117,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
-        Text(isLogin ? '''Don't have account?''' : 'Already have account?'),
+        Text(isLogin ? "Don't have account?" : "Already have account?"),
         TextButton(
           onPressed: () {
             setState(() {
+              // Clear error message when switching between forms
+              errorMessage = '';
+              // Toggle the form type
               isLogin = !isLogin;
             });
+            // Clear the form fields if needed
+            _controllerEmail.clear();
+            _controllerPassword.clear();
+            // If using a form key, you might also want to reset the form state
+            // _formKey.currentState?.reset();
           },
           child: Text(
             isLogin ? 'Register' : 'Login',
@@ -126,31 +148,35 @@ class _RegisterScreenState extends State<RegisterScreen> {
         height: double.infinity,
         width: double.infinity,
         padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            // Image.asset(
-            //   'assets/images/cover.png',
-            //   height: 40,
-            // ),
-            const Image(
-              image: AssetImage('assets/icon/icon.png'),
-              height: 100,
-            ),
-            // _title(),
-            // Divider(),
-            Text(isLogin ? "Hello again!" : "Register",
-                style: const TextStyle(fontSize: 30)),
-            const Text("Welcome to Localist", style: TextStyle(fontSize: 20)),
-            const SizedBox(height: 20),
-            _entryField('Email', _controllerEmail),
-            _entryField('Password', _controllerPassword),
-            _errorMessage(context),
-            const SizedBox(height: 20),
-            _submitButton(),
-            _loginOrRegisterButton()
-          ],
+        child: Form(
+          // Wrap Column with Form and pass the _formKey
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              // Image.asset(
+              //   'assets/images/cover.png',
+              //   height: 40,
+              // ),
+              const Image(
+                image: AssetImage('assets/icon/icon.png'),
+                height: 100,
+              ),
+              // _title(),
+              // Divider(),
+              Text(isLogin ? "Hello again!" : "Register",
+                  style: const TextStyle(fontSize: 30)),
+              const Text("Welcome to Localist", style: TextStyle(fontSize: 20)),
+              const SizedBox(height: 20),
+              _entryField('Email', _controllerEmail),
+              _entryField('Password', _controllerPassword),
+              _errorMessage(context),
+              const SizedBox(height: 20),
+              _submitButton(),
+              _loginOrRegisterButton()
+            ],
+          ),
         ),
       ),
     );

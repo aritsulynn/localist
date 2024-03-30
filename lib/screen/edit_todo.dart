@@ -1,26 +1,21 @@
-import 'dart:convert';
-import 'dart:ffi';
-import 'dart:io';
 import 'dart:developer' as developer;
 
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/widgets.dart';
 import 'package:localist/model/auth.dart';
-import 'package:latlong2/latlong.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:longdo_maps_api3_flutter/longdo_maps_api3_flutter.dart';
+import 'package:localist/model/todo.dart';
 
-class EditScreen extends StatefulWidget {
+class EditTodo extends StatefulWidget {
   final String docId;
-  const EditScreen({super.key, required this.docId});
+  const EditTodo({super.key, required this.docId});
 
   @override
-  State<EditScreen> createState() => _EditScreenState();
+  State<EditTodo> createState() => _EditTodoState();
 }
 
-class _EditScreenState extends State<EditScreen> {
+class _EditTodoState extends State<EditTodo> {
   final db = FirebaseFirestore.instance;
   final User? user = Auth().currentUser;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -29,44 +24,45 @@ class _EditScreenState extends State<EditScreen> {
   final TextEditingController descriptionController = TextEditingController();
   final TextEditingController dateController = TextEditingController();
   final TextEditingController locationController = TextEditingController();
+  bool _locationDataAvailable = false;
 
   Future<void> editTodo() async {
-    try {
-      await db
-          .collection('users')
-          .doc(user?.uid)
-          .collection('todos')
-          .doc(widget.docId)
-          .update({
-        'title': titleController.text,
-        'description': descriptionController.text,
-        'date': Timestamp.fromDate(DateTime.parse(dateController.text)),
-        'location': locationController.text,
-      });
-    } catch (e) {
-      errorMessage = e.toString();
-    }
+    Todo()
+        .editTodo(
+      docId: widget.docId,
+      title: titleController.text,
+      description: descriptionController.text,
+      date: Timestamp.fromDate(DateTime.parse(dateController.text)),
+      location: locationController.text.isEmpty
+          ? null
+          : GeoPoint(
+              double.parse(locationController.text.split(',')[0]), // lat
+              double.parse(locationController.text.split(',')[1]), // lon
+            ),
+    )
+        .then((value) {
+      developer.log("Todo Updated");
+    }).catchError((error) {
+      developer.log("Failed to update todo: $error");
+    });
   }
 
   Future<void> getTodoDetail() async {
-    try {
-      DocumentSnapshot documentSnapshot = await db
-          .collection('users')
-          .doc(user?.uid)
-          .collection('todos')
-          .doc(widget.docId)
-          .get();
-      titleController.text = documentSnapshot['title'];
-      descriptionController.text = documentSnapshot['description'];
-      dateController.text =
-          documentSnapshot['date'].toDate().toString().split(' ')[0];
-      locationController.text = formatLocation(documentSnapshot['location']);
-    } catch (e) {
-      errorMessage = e.toString();
-    }
+    Todo().getTodoDetail(widget.docId).then((value) {
+      titleController.text = value['title'];
+      descriptionController.text = value['description'];
+      dateController.text = value['date'].toDate().toString().split(' ')[0];
+      locationController.text = formatLocation(value['location']);
+
+      setState(() {
+        _locationDataAvailable = true; // Set the state to true
+      });
+    }).catchError((error) {
+      errorMessage = error.toString();
+    });
   }
 
-  Future<void> pick_date() async {
+  Future<void> pickDate() async {
     DateTime? date = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
@@ -98,6 +94,8 @@ class _EditScreenState extends State<EditScreen> {
               // filled: false,
               prefixIcon: Icon(Icons.title),
             ),
+            validator: (value) =>
+                value!.isEmpty ? 'This field is required' : null,
           ),
           SizedBox(
             height: 10,
@@ -121,19 +119,38 @@ class _EditScreenState extends State<EditScreen> {
               filled: false,
               prefixIcon: Icon(Icons.date_range),
             ),
-            onTap: () => pick_date(),
+            onTap: () => pickDate(),
           ),
           SizedBox(
             height: 10,
           ),
-          // TextFormField(
-          //   controller: locationController,
-          //   decoration: const InputDecoration(
-          //     labelText: 'Location',
-          //     filled: false,
-          //     prefixIcon: Icon(Icons.location_on),
-          //   ),
-          // ),
+          TextFormField(
+            controller: locationController,
+            decoration: InputDecoration(
+              labelText: "Location", // Use a variable for the label text
+              filled: false,
+              prefixIcon: const Icon(Icons.location_on),
+            ),
+            onTap: () async {
+              final selectedLocation =
+                  await Navigator.pushNamed(context, '/map');
+              if (selectedLocation != null) {
+                setState(() {
+                  String locationString = selectedLocation as String;
+                  List<String> locationParts = locationString.split(',');
+                  String lat = locationParts[0];
+                  String lon = locationParts[1];
+                  locationController.text = '$lat, $lon';
+
+                  // update marker on the map
+                  map.currentState?.call("Overlays.clear");
+                  map.currentState?.call("location", args: [lat, lon]);
+                });
+              }
+            },
+            // validator: (value) =>
+            //     value!.isEmpty ? 'This field is required' : null,
+          ),
         ],
       ),
     );
@@ -145,137 +162,50 @@ class _EditScreenState extends State<EditScreen> {
     return '${location.latitude}, ${location.longitude}';
   }
 
-  Object? marker;
+  LongdoMapWidget _map4() {
+    final location = locationController.text.trim();
+    double? latitude;
+    double? longitude;
 
-  // Future<Widget> _map() async {
-  //   await getTodoDetail();
-  //   String location = locationController.text;
-  //   String latitude = "13.7245995";
-  //   String longitude = "100.6331108";
-  //   if (location != '') {
-  //     latitude = location.split(',')[0];
-  //     longitude = location.split(',')[1];
-  //   }
-  //   developer.log(location, name: 'location');
-  //   // developer.log(latitude, name: 'latitude');
-  //   return SizedBox(
-  //     height: 300,
-  //     child: LongdoMapWidget(
-  //       apiKey: "75feccc26ae0b1138916c66602a2e791",
-  //       key: map,
-  //       eventName: [
-  //         JavascriptChannel(
-  //           name: "ready",
-  //           onMessageReceived: (message) {
-  //             var marker = Longdo.LongdoObject(
-  //               "Marker",
-  //               args: [
-  //                 {
-  //                   "lat": latitude,
-  //                   "lon": longitude,
-  //                 },
-  //               ],
-  //             );
-  //             map.currentState?.call("Overlays.add", args: [marker]);
-  //           },
-  //         ),
-  //       ],
-  //       options: {
-  //         "location": {"lat": latitude, "lon": longitude},
-  //         "zoom": 10,
-  //       },
-  //     ),
-  //   );
-  // }
-
-  Future<Widget> _map2() async {
-    await getTodoDetail();
-    String location = locationController.text;
-    String latitude = "13.7245995";
-    String longitude = "100.6331108";
-    if (location != '') {
-      latitude = location.split(',')[0];
-      longitude = location.split(',')[1];
+    // if location is not null
+    if (location.isNotEmpty) {
+      final locationParts = location.split(',');
+      latitude = double.parse(locationParts[0]);
+      longitude = double.parse(locationParts[1]);
     }
-    developer.log(location, name: 'location');
-    // developer.log(latitude, name: 'latitude');
-    String apiKey = "75feccc26ae0b1138916c66602a2e791";
-    // [{lat: 13.880858851674915, lon:  100.01908937169776}]}
-    return SizedBox(
-      height: 300,
-      child: LongdoMapWidget(
-        apiKey: apiKey,
-        key: map,
-        eventName: [
-          JavascriptChannel(
-            name: "ready",
-            onMessageReceived: (message) async {
-              var marker = Longdo.LongdoObject(
-                "Marker",
-                args: [
-                  {
-                    "lat": latitude,
-                    "lon": longitude,
-                  },
-                ],
-              );
-              developer.log(marker.toString(), name: 'this marker');
-              map.currentState?.call("Overlays.add", args: [marker]);
-            },
-          ),
-        ],
-        options: {
-          "location": {"lat": latitude, "lon": longitude},
-          "zoom": 10,
-        },
-      ),
-    );
-  }
 
-  Stream<Widget> _map3() async* {
-    await getTodoDetail();
-    // how to delay
+    developer.log(latitude.toString(), name: 'latitude');
+    developer.log(longitude.toString(), name: 'longitude');
 
-    String location = locationController.text;
-    String latitude = "13.7245995";
-    String longitude = "100.6331108";
-    if (location != '') {
-      latitude = location.split(',')[0];
-      longitude = location.split(',')[1];
-    }
-    developer.log(location, name: 'location');
-    // developer.log(latitude, name: 'latitude');
-    String apiKey = "75feccc26ae0b1138916c66602a2e791";
-    // [{lat: 13.880858851674915, lon:  100.01908937169776}]}
-    await Future.delayed(Duration(seconds: 3));
-    yield SizedBox(
-      height: 300,
-      child: LongdoMapWidget(
-        apiKey: apiKey,
-        key: map,
-        options: {
-          "location": {"lat": latitude, "lon": longitude},
-          "zoom": 10,
+    return LongdoMapWidget(
+      apiKey: "75feccc26ae0b1138916c66602a2e791",
+      key: map,
+      options: {
+        "location": {
+          "lat": latitude,
+          "lon": longitude,
         },
-        eventName: [
-          JavascriptChannel(
-            name: "click",
-            onMessageReceived: (message) async {
-              var marker = Longdo.LongdoObject(
-                "Marker",
-                args: [
-                  {
-                    "lat": latitude,
-                    "lon": longitude,
-                  },
-                ],
-              );
-              developer.log(marker.toString(), name: 'this marker');
-              map.currentState?.call("Overlays.add", args: [marker]);
-            },
-          ),
-        ],
-      ),
+        "zoom": 16,
+      },
+      eventName: [
+        JavascriptChannel(
+          name: "ready",
+          onMessageReceived: (message) async {
+            final marker = Longdo.LongdoObject(
+              "Marker",
+              args: [
+                {
+                  "lat": latitude,
+                  "lon": longitude,
+                },
+              ],
+            );
+            developer.log(marker.toString(), name: 'this marker');
+            // map.currentState?.call("Overlays.clear");
+            map.currentState?.call("Overlays.add", args: [marker]);
+          },
+        ),
+      ],
     );
   }
 
@@ -283,7 +213,7 @@ class _EditScreenState extends State<EditScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Edit Todo"),
+        title: const Text("Todo"),
         actions: [
           IconButton(
             onPressed: () {
@@ -305,31 +235,14 @@ class _EditScreenState extends State<EditScreen> {
               padding: const EdgeInsets.all(20),
               child: _formEditTodo(context),
             ),
-            SizedBox(height: 10),
-            // Text(locationController.text),
-            StreamBuilder<Widget>(
-              stream: _map3(),
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  return snapshot.data!;
-                } else if (snapshot.hasError) {
-                  return Text('Error: ${snapshot.error}');
-                } else {
-                  return const CircularProgressIndicator();
-                }
-              },
+            const SizedBox(height: 10),
+            Container(
+              padding: const EdgeInsets.all(20),
+              child: SizedBox(
+                height: 300,
+                child: _map4(),
+              ),
             ),
-            // FutureBuilder(
-            //     future: _map2(),
-            //     builder: (context, snapshot) {
-            //       if (snapshot.hasData) {
-            //         return snapshot.data!;
-            //       } else if (snapshot.hasError) {
-            //         return Text('Error: ${snapshot.error}');
-            //       } else {
-            //         return const CircularProgressIndicator();
-            //       }
-            //     }),
           ],
         ),
       ),

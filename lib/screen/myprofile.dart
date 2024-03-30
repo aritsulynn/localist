@@ -1,14 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-// import 'package:localist/data/user_profile.dart';
-// import 'package:localist/model/numbers_widget.dart';
+import 'package:localist/main.dart';
+import 'package:localist/model/auth.dart';
 import 'package:localist/screen/edit_profile.dart';
-// import 'package:provider/provider.dart';
+import 'package:localist/model/todo.dart';
 
 class MyProfile extends StatefulWidget {
-  final String? name;
-  const MyProfile(this.name, {super.key});
+  const MyProfile({super.key});
   @override
   State<MyProfile> createState() {
     return _MyProfileState();
@@ -22,17 +21,63 @@ class _MyProfileState extends State<MyProfile> {
   final double coverHeight = 280;
   final double profileHeight = 100;
 
+  Future<void> signOut(BuildContext context) async {
+    Navigator.popUntil(context, ModalRoute.withName('/')); // pop until root
+    Navigator.pushNamed(context, '/');
+    await Auth().signOut();
+  }
+
+  Future<int> _getTaskCount(bool isCompleted) async {
+    final querySnapshot = await FirebaseFirestore.instance
+        .collection('tasks')
+        .where('userId',
+            isEqualTo:
+                currentUser.uid) // Assuming tasks are filtered by user ID
+        .where('isDone', isEqualTo: isCompleted)
+        .get();
+
+    return querySnapshot.docs.length;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("My Profile")),
+      appBar: AppBar(
+        title: const Text("My Profile"),
+        backgroundColor: Colors.black, // AppBar background color
+        foregroundColor: Colors.white, // AppBar foreground color (title, icons)
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            // Adding a linear gradient for a simple graphic effect
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Colors.grey.shade800, // Darker grey shade
+                Colors.black, // Black color
+              ],
+              stops: [0.5, 1],
+            ),
+          ),
+        ),
+      ),
       body: ListView(
         padding: EdgeInsets.zero,
         children: <Widget>[
           buildTop(),
           buildContent(),
           buildNumberSection(),
-          buildButton(),
+          const SizedBox(height: 20),
+          _editProfileButton(),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: <Widget>[
+              _settingButton(),
+              _aboutButton(),
+              _supportButton(),
+              _logoutButton(),
+            ],
+          ),
         ],
       ),
       // bottomNavigationBar: buildButton(),
@@ -138,34 +183,116 @@ class _MyProfileState extends State<MyProfile> {
   }
 
   Widget buildNumberSection() {
-    return const NumberWidget();
+    return StreamBuilder<QuerySnapshot>(
+      stream: Todo().getAllTodos(),
+      builder: (context, snapshot) {
+        int totalTasks = 0;
+        int completedTasks = 0;
+        int ongoingTasks = 0;
+
+        if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
+          totalTasks = snapshot.data!.docs.length;
+          completedTasks =
+              snapshot.data!.docs.where((doc) => doc['isDone'] as bool).length;
+          ongoingTasks = totalTasks - completedTasks;
+        }
+
+        return NumberWidget(
+          totalTasks: totalTasks,
+          ongoingTasks: ongoingTasks,
+          completedTasks: completedTasks,
+          onTotalTap: () {
+            Navigator.pushNamed(
+              context,
+              '/tasklistscreen',
+              arguments: TaskListArguments(userId: currentUser.uid),
+            );
+          },
+          onOngoingTap: () {
+            Navigator.pushNamed(
+              context,
+              '/tasklistscreen',
+              arguments: TaskListArguments(
+                  userId: currentUser.uid, showCompleted: false),
+            );
+          },
+          onCompletedTap: () {
+            Navigator.pushNamed(
+              context,
+              '/tasklistscreen',
+              arguments: TaskListArguments(
+                  userId: currentUser.uid, showCompleted: true),
+            );
+          },
+        );
+      },
+    );
   }
 
-  Widget buildButton() {
+  Widget _editProfileButton() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
       child: SizedBox(
         width: double.infinity,
         child: ElevatedButton(
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => const EditProfile(),
-                ),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.black,
-                backgroundColor: const Color.fromARGB(255, 219, 219, 219),
-                shadowColor: Colors.black,
-                elevation: 5,
-                textStyle: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-                padding: const EdgeInsets.fromLTRB(0, 10, 10, 10)),
-            child: const Text('Edit Profile')),
+          onPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => const EditProfile(),
+              ),
+            );
+          },
+          style: ElevatedButton.styleFrom(
+            foregroundColor: Colors.white,
+            backgroundColor: Colors.black, // Text color
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8), // Rounded corners
+            ),
+            padding: const EdgeInsets.all(16),
+            textStyle: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          child: const Text('Edit Profile'),
+        ),
       ),
+    );
+  }
+
+  Widget _settingButton() {
+    return IconButton(
+      icon: const Icon(Icons.settings),
+      onPressed: () {
+        Navigator.of(context).pushNamed('/setting');
+      },
+    );
+  }
+
+  Widget _aboutButton() {
+    return IconButton(
+      icon: const Icon(Icons.info),
+      onPressed: () {
+        Navigator.of(context).pushNamed('/aboutus');
+      },
+    );
+  }
+
+  Widget _supportButton() {
+    return IconButton(
+      icon: const Icon(Icons.help),
+      onPressed: () {
+        Navigator.of(context).pushNamed('/support');
+      },
+    );
+  }
+
+  Widget _logoutButton() {
+    return IconButton(
+      icon: const Icon(Icons.logout),
+      onPressed: () {
+        signOut(context);
+      },
     );
   }
 }
@@ -187,51 +314,86 @@ class ImageDialog extends StatelessWidget {
 }
 
 class NumberWidget extends StatelessWidget {
-  const NumberWidget({super.key});
+  final int totalTasks;
+  final int ongoingTasks;
+  final int completedTasks;
+  final VoidCallback onTotalTap;
+  final VoidCallback onOngoingTap;
+  final VoidCallback onCompletedTap;
+
+  const NumberWidget({
+    super.key,
+    required this.totalTasks,
+    required this.ongoingTasks,
+    required this.completedTasks,
+    required this.onTotalTap,
+    required this.onOngoingTap,
+    required this.onCompletedTap,
+  });
 
   @override
-  Widget build(context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        buildButton(text: 'TOTAL', value: 12),
-        buildDivider(),
-        buildButton(text: 'ONGOING', value: 3),
-        buildDivider(),
-        buildButton(text: 'COMPLETED', value: 9),
-      ],
+  Widget build(BuildContext context) {
+    return IntrinsicHeight(
+      // Ensuring the dividers have the same height as buttons
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Expanded(
+            child: buildButton(
+              text: 'TOTAL',
+              value: totalTasks,
+              onTap: onTotalTap,
+            ),
+          ),
+          buildDivider(),
+          Expanded(
+            child: buildButton(
+              text: 'ONGOING',
+              value: ongoingTasks,
+              onTap: onOngoingTap,
+            ),
+          ),
+          buildDivider(),
+          Expanded(
+            child: buildButton(
+              text: 'COMPLETED',
+              value: completedTasks,
+              onTap: onCompletedTap,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
-  Widget buildButton({required String text, required int value}) {
-    return MaterialButton(
-        onPressed: () {},
-        padding: const EdgeInsets.symmetric(vertical: 4),
-        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            Text(
-              '$value',
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              text,
-              style: const TextStyle(fontSize: 16),
-            )
-          ],
-        ));
+  Widget buildButton({
+    required String text,
+    required int value,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Text(
+            '$value',
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            text,
+            style: const TextStyle(fontSize: 16),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget buildDivider() {
     return Container(
-      height: 0, // Adjust the height to fit your design
-      width: 1, // This will be the thickness of the divider
-      color: Colors.grey, // Choose a color that fits your app's theme
-      margin: const EdgeInsets.symmetric(
-          horizontal: 12), // Add some spacing on both sides
+      width: 1,
+      margin: const EdgeInsets.symmetric(horizontal: 8),
     );
   }
 }
