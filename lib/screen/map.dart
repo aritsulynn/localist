@@ -50,10 +50,13 @@ class _MapSelectionState extends State<MapSelection> {
 
   Future<void> _updateLocation() async {
     final Position position = await _getCurrentLocation();
+    // won't update the state if the widget is not mounted
+    if (!mounted) return;
     setState(() {
       latitude = position.latitude;
       longitude = position.longitude;
     });
+
     developer.log('Latitude: $latitude, Longitude: $longitude');
   }
 

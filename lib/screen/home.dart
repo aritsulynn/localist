@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-
+import 'dart:developer' as developer;
 // Authenication
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:intl/intl.dart';
 import 'package:localist/model/auth.dart';
 
 // TODO Things
@@ -74,8 +75,15 @@ class _HomeScreenState extends State<HomeScreen> {
               itemBuilder: (context, index) {
                 Map<String, dynamic> data =
                     todos[index].data() as Map<String, dynamic>;
+
+                DateTime todoDate = (data['date'] as Timestamp).toDate();
+                DateTime tomorrow = DateTime.now();
+                Color subtitleColor =
+                    todoDate.isBefore(tomorrow) ? Colors.red : Colors.black;
+                // developer.log('Todo Date: $todoDate');
+                // developer.log('Tomorrow: $tomorrow');
                 return Container(
-                  margin: const EdgeInsets.only(bottom: 5),
+                  // margin: const EdgeInsets.only(bottom: 5),
                   child: Dismissible(
                     key: Key(todos[index].id),
                     onDismissed: (direction) {
@@ -107,41 +115,38 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: Card(
                         color: Colors.orange[400],
                         child: ListTile(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
+                          leading: Transform.scale(
+                            scale: 1.5,
+                            child: Checkbox(
+                              value: data['isDone'],
+                              side: const BorderSide(
+                                  color: Colors.white, width: 2),
+                              checkColor: Colors.white,
+                              activeColor: Colors.black,
+                              onChanged: (value) {
+                                Todo().updateTodoIsDone(
+                                  docId: todos[index].id,
+                                  isDone: value!,
+                                );
+                              },
+                            ),
                           ),
-                          title: Row(
-                            children: [
-                              Transform.scale(
-                                scale: 1.5,
-                                child: Checkbox(
-                                  value: data['isDone'],
-                                  side: const BorderSide(
-                                      color: Colors.white, width: 2),
-                                  checkColor: Colors.white,
-                                  activeColor: Colors.black,
-                                  onChanged: (value) {
-                                    Todo().updateTodoIsDone(
-                                      docId: todos[index].id,
-                                      isDone: value!,
-                                    );
-                                  },
-                                ),
-                              ),
-                              Text(
-                                  data['title'].length > 15
-                                      ? data['title'].substring(0, 20) + '...'
-                                      : data['title'],
-                                  style: TextStyle(
-                                    color: data['isDone']
-                                        ? Colors.black
-                                        : Colors.white,
-                                    decoration: data['isDone']
-                                        ? TextDecoration.lineThrough
-                                        : null,
-                                  )),
-                              const SizedBox(width: 10),
-                            ],
+                          title: Text(
+                            data['title'].length > 15
+                                ? data['title'].substring(0, 20) + '...'
+                                : data['title'],
+                            style: TextStyle(
+                              color: data['isDone']
+                                  ? const Color.fromARGB(255, 97, 97, 97)
+                                  : Colors.black,
+                              decoration: data['isDone']
+                                  ? TextDecoration.lineThrough
+                                  : null,
+                            ),
+                          ),
+                          subtitle: Text(
+                            DateFormat('E, MMM d, yyyy').format(todoDate),
+                            style: TextStyle(color: subtitleColor),
                           ),
                         ),
                       ),
@@ -160,9 +165,8 @@ class _HomeScreenState extends State<HomeScreen> {
     return SizedBox(
       height: kBottomNavigationBarHeight,
       child: SafeArea(
-        minimum:
-            EdgeInsets.zero, // Remove any margin on the left and right sides
-        bottom: false, // Ensure bottom padding is zero
+        minimum: EdgeInsets.zero,
+        bottom: false,
         child: BottomAppBar(
           padding: const EdgeInsets.symmetric(horizontal: 0),
           // color: Colors.white,

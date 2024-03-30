@@ -7,7 +7,7 @@ class Todo {
 
   Future<void> addTodo({
     required String title,
-    required String description,
+    String? description,
     required Timestamp date,
     GeoPoint? location,
   }) async {
@@ -32,6 +32,7 @@ class Todo {
         .collection('users')
         .doc(FirebaseAuth.instance.currentUser!.uid)
         .collection('todos')
+        // .orderBy('date', descending: true)
         .orderBy('isDone', descending: false)
         .snapshots();
   }

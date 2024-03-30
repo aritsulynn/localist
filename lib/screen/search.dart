@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import '../model/auth.dart';
+import 'package:localist/screen/edit_todo.dart';
 
 class SearchTodo extends StatefulWidget {
   const SearchTodo({super.key});
@@ -74,8 +74,18 @@ class _SearchTodoState extends State<SearchTodo> {
                     final document = documents[index];
                     // Display the search results here
                     return ListTile(
-                      title: Text(document['title']),
-                      // Add any other fields you want to display
+                      title: GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => EditTodo(
+                                  docId: document.id,
+                                ),
+                              ),
+                            );
+                          },
+                          child: Text(document['title'])),
                     );
                   },
                 );

@@ -84,8 +84,8 @@ class _AddNewTodoState extends State<AddNewTodo> {
             ),
             maxLines: null,
             keyboardType: TextInputType.multiline,
-            validator: (value) =>
-                value!.isEmpty ? 'This field is required' : null,
+            // validator: (value) =>
+            //     value!.isEmpty ? 'This field is required' : null,
           ),
           const SizedBox(
             height: 10,

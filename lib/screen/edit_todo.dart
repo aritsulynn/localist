@@ -146,6 +146,11 @@ class _EditTodoState extends State<EditTodo> {
                   String lat = locationParts[0];
                   String lon = locationParts[1];
                   locationController.text = '$lat, $lon';
+
+                  // Update the map marker with the new location
+                  // double latitude = double.parse(lat);
+                  // double longitude = double.parse(lon);
+                  // _updateMarker(latitude, longitude);
                 });
               }
             },
@@ -211,12 +216,61 @@ class _EditTodoState extends State<EditTodo> {
               ],
             );
             developer.log(marker.toString(), name: 'this marker');
+            // map.currentState?.call("Overlays.clear");
             map.currentState?.call("Overlays.add", args: [marker]);
           },
         ),
       ],
     );
   }
+
+  // void _updateMarker(double? latitude, double? longitude) {
+  //   final marker = Longdo.LongdoObject(
+  //     "Marker",
+  //     args: [
+  //       {
+  //         "lat": latitude,
+  //         "lon": longitude,
+  //       },
+  //     ],
+  //   );
+  //   map.currentState?.call("Overlays.add", args: [marker]);
+  // }
+
+  // LongdoMapWidget _map5() {
+  //   if (!_locationDataAvailable) {
+  //     return const LongdoMapWidget();
+  //   }
+
+  //   final location = locationController.text.trim();
+
+  //   double? latitude;
+  //   double? longitude;
+  //   if (location.isNotEmpty) {
+  //     try {
+  //       final locationParts = location.split(',');
+  //       latitude = double.parse(locationParts[0]);
+  //       longitude = double.parse(locationParts[1]);
+  //     } catch (e) {
+  //       developer.log('Invalid location format: $location',
+  //           name: 'location_error');
+  //     }
+  //   }
+
+  //   developer.log(latitude.toString(), name: 'latitude');
+  //   developer.log(longitude.toString(), name: 'longitude');
+  //   return LongdoMapWidget(
+  //     apiKey: "75feccc26ae0b1138916c66602a2e791",
+  //     key: map,
+  //     options: {
+  //       "location": {
+  //         "lat": latitude,
+  //         "lon": longitude,
+  //       },
+  //       "zoom": 10,
+  //     },
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -252,6 +306,13 @@ class _EditTodoState extends State<EditTodo> {
                 child: _map4(),
               ),
             ),
+            // Container(
+            //   padding: const EdgeInsets.all(20),
+            //   child: SizedBox(
+            //     height: 300,
+            //     child: _map5(),
+            //   ),
+            // ),
           ],
         ),
       ),
