@@ -36,10 +36,16 @@ class _EditTodoState extends State<EditTodo> {
         'title': titleController.text,
         'description': descriptionController.text,
         'date': Timestamp.fromDate(DateTime.parse(dateController.text)),
-        'location': GeoPoint(
-          double.parse(locationController.text.split(',')[0]), // lat
-          double.parse(locationController.text.split(',')[1]), // lon
-        ),
+        // 'location': GeoPoint(
+        //   double.parse(locationController.text.split(',')[0]), // lat
+        //   double.parse(locationController.text.split(',')[1]), // lon
+        // ),
+        'location': locationController.text.isEmpty
+            ? null
+            : GeoPoint(
+                double.parse(locationController.text.split(',')[0]), // lat
+                double.parse(locationController.text.split(',')[1]), // lon
+              ),
       });
     } catch (e) {
       errorMessage = e.toString();
@@ -59,6 +65,7 @@ class _EditTodoState extends State<EditTodo> {
       dateController.text =
           documentSnapshot['date'].toDate().toString().split(' ')[0];
       locationController.text = formatLocation(documentSnapshot['location']);
+
       setState(() {
         _locationDataAvailable = true; // Set the state to true
       });
@@ -87,8 +94,6 @@ class _EditTodoState extends State<EditTodo> {
     getTodoDetail();
   }
 
-  String _locationLabel = 'Location';
-
   Widget _formEditTodo(BuildContext context) {
     return Form(
       key: _formKey,
@@ -101,6 +106,8 @@ class _EditTodoState extends State<EditTodo> {
               // filled: false,
               prefixIcon: Icon(Icons.title),
             ),
+            // validator: (value) =>
+            //     value!.isEmpty ? 'This field is required' : null,
           ),
           SizedBox(
             height: 10,
@@ -132,7 +139,7 @@ class _EditTodoState extends State<EditTodo> {
           TextFormField(
             controller: locationController,
             decoration: InputDecoration(
-              labelText: _locationLabel, // Use a variable for the label text
+              labelText: "Location", // Use a variable for the label text
               filled: false,
               prefixIcon: const Icon(Icons.location_on),
             ),
@@ -162,7 +169,6 @@ class _EditTodoState extends State<EditTodo> {
     );
   }
 
-  // final map = GlobalKey<LongdoMapState>();
   final map = GlobalKey<LongdoMapState>();
 
   String formatLocation(GeoPoint location) {
@@ -171,22 +177,21 @@ class _EditTodoState extends State<EditTodo> {
 
   LongdoMapWidget _map4() {
     if (!_locationDataAvailable) {
-      return const LongdoMapWidget();
+      return const LongdoMapWidget(
+        apiKey: "75feccc26ae0b1138916c66602a2e791",
+      );
     }
 
     final location = locationController.text.trim();
 
     double? latitude;
     double? longitude;
+
+    // if location is not null
     if (location.isNotEmpty) {
-      try {
-        final locationParts = location.split(',');
-        latitude = double.parse(locationParts[0]);
-        longitude = double.parse(locationParts[1]);
-      } catch (e) {
-        developer.log('Invalid location format: $location',
-            name: 'location_error');
-      }
+      final locationParts = location.split(',');
+      latitude = double.parse(locationParts[0]);
+      longitude = double.parse(locationParts[1]);
     }
 
     developer.log(latitude.toString(), name: 'latitude');

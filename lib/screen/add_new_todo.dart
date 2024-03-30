@@ -31,12 +31,22 @@ class _AddNewTodoState extends State<AddNewTodo> {
     try {
       await Todo().addTodo(
         title: titleController.text,
-        description: descriptionController.text,
+        // description: descriptionController.text,
+        description: descriptionController.text.isEmpty
+            ? ''
+            : descriptionController.text,
         date: Timestamp.fromDate(DateTime.parse(dateController.text)),
-        location: GeoPoint(
-          double.parse(locationController.text.split(',')[0]), // lat
-          double.parse(locationController.text.split(',')[1]), // lon
-        ),
+        // if location is empty, set it to null
+        location: locationController.text.isEmpty
+            ? null
+            : GeoPoint(
+                double.parse(locationController.text.split(',')[0]), // lat
+                double.parse(locationController.text.split(',')[1]), // lon
+              ),
+        // location: GeoPoint(
+        //   double.parse(locationController.text.split(',')[0]), // lat
+        //   double.parse(locationController.text.split(',')[1]), // lon
+        // ),
       );
     } catch (e) {
       errorMessage = e.toString();
@@ -65,7 +75,7 @@ class _AddNewTodoState extends State<AddNewTodo> {
           TextFormField(
             controller: titleController,
             decoration: const InputDecoration(
-              labelText: 'Title',
+              labelText: 'Title*',
               // filled: false,
               prefixIcon: Icon(Icons.title),
             ),
@@ -93,7 +103,7 @@ class _AddNewTodoState extends State<AddNewTodo> {
           TextFormField(
             controller: dateController,
             decoration: const InputDecoration(
-              labelText: 'Date',
+              labelText: 'Date*',
               filled: false,
               prefixIcon: Icon(Icons.date_range),
             ),

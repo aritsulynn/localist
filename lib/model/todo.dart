@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 // import 'package:localist/screen/add_new_todo.dart';
+import 'dart:developer' as developer;
 
 class Todo {
   final db = FirebaseFirestore.instance;
@@ -22,8 +23,8 @@ class Todo {
           'date': date,
           'location': location,
         })
-        .then((value) => print("Todo Added"))
-        .catchError((error) => print("Failed to add todo: $error"));
+        .then((value) => developer.log("Todo Added"))
+        .catchError((error) => developer.log("Failed to add todo: $error"));
   }
 
   // return all todos from firebase
