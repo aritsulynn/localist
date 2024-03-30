@@ -72,7 +72,7 @@ class MyApp extends StatelessWidget {
           );
         }
         // If the route name does not match any predefined paths,
-        // you can return null or define a default behavior
+        // return null or define a default behavior
         return null;
       },
     );
