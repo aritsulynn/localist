@@ -84,7 +84,7 @@ class _SettingPageState extends State<SettingPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("My Profile"),
+        title: const Text("Settings"),
         backgroundColor: Colors.black, // AppBar background color
         foregroundColor: Colors.white, // AppBar foreground color (title, icons)
         flexibleSpace: Container(

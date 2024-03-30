@@ -15,7 +15,7 @@ class _SupportState extends State<Support> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("My Profile"),
+        title: const Text("Support"),
         backgroundColor: Colors.black, // AppBar background color
         foregroundColor: Colors.white, // AppBar foreground color (title, icons)
         flexibleSpace: Container(

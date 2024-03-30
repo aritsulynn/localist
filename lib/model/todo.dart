@@ -33,9 +33,65 @@ class Todo {
         .collection('users')
         .doc(FirebaseAuth.instance.currentUser!.uid)
         .collection('todos')
-        // .orderBy('date', descending: true)
-        .orderBy('isDone', descending: false)
+        // .orderBy('isDone', descending: false)
+        // .where('date', isLessThan: DateTime.now())
         .snapshots();
+  }
+
+  // return db
+  //         .collection('users')
+  //         .doc(FirebaseAuth.instance.currentUser!.uid)
+  //         .collection('todos')
+  //         .where('date', isLessThan: DateTime.now())
+  //         .orderBy('date', descending: decending!)
+  //         .snapshots();
+  //   }
+
+  Stream<QuerySnapshot> getAllTodos2(bool? descending, String? where) {
+    Query<Map<String, dynamic>> query = db
+        .collection('users')
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .collection('todos');
+
+    switch (where) {
+      case 'All':
+        return query.orderBy('isDone', descending: descending!).snapshots();
+      case 'Today':
+        final today = DateTime.now().toUtc().subtract(
+              Duration(
+                hours: DateTime.now().hour,
+                minutes: DateTime.now().minute,
+                seconds: DateTime.now().second,
+                milliseconds: DateTime.now().millisecond,
+                microseconds: DateTime.now().microsecond,
+              ),
+            );
+        final tomorrow = today.add(Duration(days: 1));
+
+        return query
+            .where(
+              'date',
+              isGreaterThanOrEqualTo: Timestamp.fromDate(today),
+              isLessThan: Timestamp.fromDate(tomorrow),
+            )
+            .orderBy('date')
+            .orderBy('isDone', descending: descending!)
+            .snapshots();
+      case 'Upcoming':
+        return query
+            .where('date', isGreaterThan: DateTime.now())
+            .orderBy('date')
+            .orderBy('isDone', descending: descending!)
+            .snapshots();
+      case 'Overdue':
+        return query
+            .where('date', isLessThan: DateTime.now())
+            .orderBy('date')
+            .orderBy('isDone', descending: descending!)
+            .snapshots();
+      default:
+        return query.orderBy('isDone', descending: descending!).snapshots();
+    }
   }
 
   // change checkbox to done
@@ -67,21 +123,34 @@ class Todo {
         .catchError((error) => print("Failed to delete todo: $error"));
   }
 
-  // Future<String> getTodoTitle(String docId) async {
-  //   String title = '';
-  //   await db
-  //       .collection('users')
-  //       .doc(FirebaseAuth.instance.currentUser!.uid)
-  //       .collection('todos')
-  //       .doc(docId)
-  //       .get()
-  //       .then((DocumentSnapshot documentSnapshot) {
-  //     if (documentSnapshot.exists) {
-  //       title = documentSnapshot.get('title');
-  //     } else {
-  //       print('Document does not exist on the database');
-  //     }
-  //   });
-  //   return title.length > 15 ? (title.substring(0, 15) + '...') : title;
-  // }
+  Future<void> editTodo({
+    required String docId,
+    required String title,
+    String? description,
+    required Timestamp date,
+    GeoPoint? location,
+  }) async {
+    await db
+        .collection('users')
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .collection('todos')
+        .doc(docId)
+        .update({
+          'title': title,
+          'description': description,
+          'date': date,
+          'location': location,
+        })
+        .then((value) => developer.log("Todo Updated"))
+        .catchError((error) => developer.log("Failed to update todo: $error"));
+  }
+
+  Future<DocumentSnapshot> getTodoDetail(String docId) async {
+    return await db
+        .collection('users')
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .collection('todos')
+        .doc(docId)
+        .get();
+  }
 }

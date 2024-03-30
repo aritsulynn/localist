@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:localist/model/auth.dart';
 import 'package:longdo_maps_api3_flutter/longdo_maps_api3_flutter.dart';
+import 'package:localist/model/todo.dart';
 
 class EditTodo extends StatefulWidget {
   final String docId;
@@ -26,55 +27,42 @@ class _EditTodoState extends State<EditTodo> {
   bool _locationDataAvailable = false;
 
   Future<void> editTodo() async {
-    try {
-      await db
-          .collection('users')
-          .doc(user?.uid)
-          .collection('todos')
-          .doc(widget.docId)
-          .update({
-        'title': titleController.text,
-        'description': descriptionController.text,
-        'date': Timestamp.fromDate(DateTime.parse(dateController.text)),
-        // 'location': GeoPoint(
-        //   double.parse(locationController.text.split(',')[0]), // lat
-        //   double.parse(locationController.text.split(',')[1]), // lon
-        // ),
-        'location': locationController.text.isEmpty
-            ? null
-            : GeoPoint(
-                double.parse(locationController.text.split(',')[0]), // lat
-                double.parse(locationController.text.split(',')[1]), // lon
-              ),
-      });
-    } catch (e) {
-      errorMessage = e.toString();
-    }
+    Todo()
+        .editTodo(
+      docId: widget.docId,
+      title: titleController.text,
+      description: descriptionController.text,
+      date: Timestamp.fromDate(DateTime.parse(dateController.text)),
+      location: locationController.text.isEmpty
+          ? null
+          : GeoPoint(
+              double.parse(locationController.text.split(',')[0]), // lat
+              double.parse(locationController.text.split(',')[1]), // lon
+            ),
+    )
+        .then((value) {
+      developer.log("Todo Updated");
+    }).catchError((error) {
+      developer.log("Failed to update todo: $error");
+    });
   }
 
   Future<void> getTodoDetail() async {
-    try {
-      DocumentSnapshot documentSnapshot = await db
-          .collection('users')
-          .doc(user?.uid)
-          .collection('todos')
-          .doc(widget.docId)
-          .get();
-      titleController.text = documentSnapshot['title'];
-      descriptionController.text = documentSnapshot['description'];
-      dateController.text =
-          documentSnapshot['date'].toDate().toString().split(' ')[0];
-      locationController.text = formatLocation(documentSnapshot['location']);
+    Todo().getTodoDetail(widget.docId).then((value) {
+      titleController.text = value['title'];
+      descriptionController.text = value['description'];
+      dateController.text = value['date'].toDate().toString().split(' ')[0];
+      locationController.text = formatLocation(value['location']);
 
       setState(() {
         _locationDataAvailable = true; // Set the state to true
       });
-    } catch (e) {
-      errorMessage = e.toString();
-    }
+    }).catchError((error) {
+      errorMessage = error.toString();
+    });
   }
 
-  Future<void> pick_date() async {
+  Future<void> pickDate() async {
     DateTime? date = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
@@ -106,8 +94,8 @@ class _EditTodoState extends State<EditTodo> {
               // filled: false,
               prefixIcon: Icon(Icons.title),
             ),
-            // validator: (value) =>
-            //     value!.isEmpty ? 'This field is required' : null,
+            validator: (value) =>
+                value!.isEmpty ? 'This field is required' : null,
           ),
           SizedBox(
             height: 10,
@@ -131,7 +119,7 @@ class _EditTodoState extends State<EditTodo> {
               filled: false,
               prefixIcon: Icon(Icons.date_range),
             ),
-            onTap: () => pick_date(),
+            onTap: () => pickDate(),
           ),
           SizedBox(
             height: 10,
@@ -205,7 +193,7 @@ class _EditTodoState extends State<EditTodo> {
           "lat": latitude,
           "lon": longitude,
         },
-        "zoom": 10,
+        "zoom": 16,
       },
       eventName: [
         JavascriptChannel(
@@ -281,7 +269,7 @@ class _EditTodoState extends State<EditTodo> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Edit Todo"),
+        title: const Text("Todo"),
         actions: [
           IconButton(
             onPressed: () {

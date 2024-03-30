@@ -11,6 +11,8 @@ import 'package:localist/model/todo.dart';
 import 'package:localist/screen/add_new_todo.dart';
 import 'package:localist/screen/edit_todo.dart';
 
+enum SortOrder { ascending, descending }
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -23,44 +25,17 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final db = FirebaseFirestore.instance;
   final User? user = Auth().currentUser;
+  bool decending = false;
+  String where = 'All';
 
   Future<void> signOut() async {
     await Auth().signOut();
   }
 
-  Widget _test() {
-    return Text(user?.uid ?? 'User UID');
-  }
-
-  Widget _title() {
-    return const Text("Localist");
-  }
-
-  Widget _userUID() {
-    return Text(user?.uid ?? 'User email');
-  }
-
-  Widget _signOutButton() {
-    return ElevatedButton(onPressed: signOut, child: const Text("Sign Out"));
-  }
-
-  Widget _floatingAddButton(BuildContext context) {
-    return FloatingActionButton(
-      onPressed: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const AddNewTodo()),
-        );
-      },
-      backgroundColor: Colors.black,
-      child: const Icon(Icons.add, color: Colors.white),
-    );
-  }
-
   Widget _todotile2() {
     return Expanded(
       child: StreamBuilder<QuerySnapshot>(
-        stream: Todo().getAllTodos(),
+        stream: Todo().getAllTodos2(decending, where),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -113,14 +88,14 @@ class _HomeScreenState extends State<HomeScreen> {
                         );
                       },
                       child: Card(
-                        color: Colors.orange[400],
+                        color: Colors.white,
                         child: ListTile(
                           leading: Transform.scale(
-                            scale: 1.5,
+                            scale: 1.3,
                             child: Checkbox(
                               value: data['isDone'],
                               side: const BorderSide(
-                                  color: Colors.white, width: 2),
+                                  color: Colors.grey, width: 2),
                               checkColor: Colors.white,
                               activeColor: Colors.black,
                               onChanged: (value) {
@@ -136,6 +111,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ? data['title'].substring(0, 20) + '...'
                                 : data['title'],
                             style: TextStyle(
+                              // fontWeight: FontWeight.bold,
                               color: data['isDone']
                                   ? const Color.fromARGB(255, 97, 97, 97)
                                   : Colors.black,
@@ -248,6 +224,87 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  SortOrder _currentSortOrder = SortOrder.ascending;
+
+  Widget _sortButton() {
+    return TextButton(
+      onPressed: () {
+        setState(() {
+          if (_currentSortOrder == SortOrder.ascending) {
+            decending = true;
+          } else {
+            decending = false;
+          }
+          _currentSortOrder = _currentSortOrder == SortOrder.ascending
+              ? SortOrder.descending
+              : SortOrder.ascending;
+        });
+      },
+      child: Row(
+        children: [
+          Text(
+            'Sort by due date ',
+            style: TextStyle(color: Colors.black),
+          ),
+          Icon(
+            _currentSortOrder == SortOrder.ascending
+                ? Icons.arrow_drop_up
+                : Icons.arrow_drop_down,
+            color: Colors.black,
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Widget _topButton() {
+  //   return SingleChildScrollView(
+  //     scrollDirection: Axis.horizontal,
+  //     child: Row(
+  //       children: ['All', 'Today', 'Upcoming', 'Overdue'].map((filter) {
+  //         return TextButton(
+  //           onPressed: () => setState(() => where = filter),
+  //           child: Text(
+  //             filter,
+  //             style: TextStyle(color: Colors.black),
+  //           ),
+  //         );
+  //       }).toList(),
+  //     ),
+  //   );
+  // }
+  Widget _topButton() {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: ['All', 'Today', 'Upcoming', 'Overdue'].map((filter) {
+          bool isSelected = filter == where;
+          return AnimatedContainer(
+            duration: Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+            decoration: BoxDecoration(
+              color: isSelected ? Colors.black : Colors.transparent,
+              borderRadius: BorderRadius.circular(30.0),
+            ),
+            child: TextButton(
+              onPressed: () {
+                setState(() {
+                  where = filter;
+                });
+              },
+              child: Text(
+                filter,
+                style: TextStyle(
+                  color: isSelected ? Colors.white : Colors.black,
+                ),
+              ),
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -255,10 +312,12 @@ class _HomeScreenState extends State<HomeScreen> {
       body: Container(
         height: double.infinity,
         width: double.infinity,
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.only(left: 10, right: 10, top: 10),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
+          // crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
+            _topButton(),
+            _sortButton(),
             _todotile2(),
           ],
         ),

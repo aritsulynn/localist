@@ -7,7 +7,7 @@ class AboutUs extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("My Profile"),
+        title: const Text("About Us"),
         backgroundColor: Colors.black, // AppBar background color
         foregroundColor: Colors.white, // AppBar foreground color (title, icons)
         flexibleSpace: Container(

@@ -75,6 +75,24 @@ class _MapSelectionState extends State<MapSelection> {
             Navigator.pop(context);
           },
         ),
+        actions: [
+          IconButton(
+            onPressed: () async {
+              final locationObj = await map.currentState?.call("location");
+              if (locationObj != null) {
+                final locationString = locationObj.toString();
+                Map<String, dynamic> location = json.decode(locationString);
+                double lat = location['lat'];
+                double lon = location['lon'];
+                String latlon = lat.toString() + ',' + lon.toString();
+                Navigator.pop(context, latlon);
+              } else {
+                developer.log('Failed to retrieve location data');
+              }
+            },
+            icon: const Icon(Icons.check),
+          ),
+        ],
       ),
       body: FutureBuilder<void>(
         future: _locationCompleter.future,
@@ -96,24 +114,24 @@ class _MapSelectionState extends State<MapSelection> {
                     eventName: [],
                   ),
                 ),
-                ElevatedButton(
-                  onPressed: () async {
-                    final locationObj =
-                        await map.currentState?.call("location");
-                    if (locationObj != null) {
-                      final locationString = locationObj.toString();
-                      Map<String, dynamic> location =
-                          json.decode(locationString);
-                      double lat = location['lat'];
-                      double lon = location['lon'];
-                      String latlon = lat.toString() + ',' + lon.toString();
-                      Navigator.pop(context, latlon);
-                    } else {
-                      print('Failed to retrieve location data');
-                    }
-                  },
-                  child: const Text('Get Current Location'),
-                ),
+                // ElevatedButton(
+                //   onPressed: () async {
+                //     final locationObj =
+                //         await map.currentState?.call("location");
+                //     if (locationObj != null) {
+                //       final locationString = locationObj.toString();
+                //       Map<String, dynamic> location =
+                //           json.decode(locationString);
+                //       double lat = location['lat'];
+                //       double lon = location['lon'];
+                //       String latlon = lat.toString() + ',' + lon.toString();
+                //       Navigator.pop(context, latlon);
+                //     } else {
+                //       print('Failed to retrieve location data');
+                //     }
+                //   },
+                //   child: const Text('Get Current Location'),
+                // ),
               ],
             );
           }
