@@ -42,7 +42,25 @@ class _MyProfileState extends State<MyProfile> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("My Profile")),
+      appBar: AppBar(
+        title: const Text("My Profile"),
+        backgroundColor: Colors.black, // AppBar background color
+        foregroundColor: Colors.white, // AppBar foreground color (title, icons)
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            // Adding a linear gradient for a simple graphic effect
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Colors.grey.shade800, // Darker grey shade
+                Colors.black, // Black color
+              ],
+              stops: [0.5, 1],
+            ),
+          ),
+        ),
+      ),
       body: ListView(
         padding: EdgeInsets.zero,
         children: <Widget>[
@@ -225,15 +243,17 @@ class _MyProfileState extends State<MyProfile> {
             );
           },
           style: ElevatedButton.styleFrom(
-              foregroundColor: Colors.black,
-              backgroundColor: const Color.fromARGB(255, 219, 219, 219),
-              shadowColor: Colors.black,
-              elevation: 5,
-              textStyle: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-              padding: const EdgeInsets.fromLTRB(0, 10, 10, 10)),
+            foregroundColor: Colors.white,
+            backgroundColor: Colors.black, // Text color
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8), // Rounded corners
+            ),
+            padding: const EdgeInsets.all(16),
+            textStyle: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           child: const Text('Edit Profile'),
         ),
       ),

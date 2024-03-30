@@ -7,7 +7,23 @@ class AboutUs extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('About Us'),
+        title: const Text("My Profile"),
+        backgroundColor: Colors.black, // AppBar background color
+        foregroundColor: Colors.white, // AppBar foreground color (title, icons)
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            // Adding a linear gradient for a simple graphic effect
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Colors.grey.shade800, // Darker grey shade
+                Colors.black, // Black color
+              ],
+              stops: [0.5, 1],
+            ),
+          ),
+        ),
       ),
       body: SingleChildScrollView(
         child: Container(

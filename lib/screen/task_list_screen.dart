@@ -25,6 +25,22 @@ class TaskListScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.black, // AppBar background color
+        foregroundColor: Colors.white, // AppBar foreground color (title, icons)
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            // Adding a linear gradient for a simple graphic effect
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Colors.grey.shade800, // Darker grey shade
+                Colors.black, // Black color
+              ],
+              stops: [0.5, 1],
+            ),
+          ),
+        ),
         title: Text(showCompleted == null
             ? 'All Tasks'
             : (showCompleted! ? 'Completed Tasks' : 'Ongoing Tasks')),
