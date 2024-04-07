@@ -49,15 +49,20 @@ class _MapSelectionState extends State<MapSelection> {
   }
 
   Future<void> _updateLocation() async {
-    final Position position = await _getCurrentLocation();
-    // won't update the state if the widget is not mounted
-    if (!mounted) return;
-    setState(() {
-      latitude = position.latitude;
-      longitude = position.longitude;
-    });
-
-    developer.log('Latitude: $latitude, Longitude: $longitude');
+    try {
+      final Position position = await _getCurrentLocation();
+      // Check if the widget is mounted before updating the state
+      if (!mounted) return;
+      setState(() {
+        latitude = position.latitude;
+        longitude = position.longitude;
+      });
+      developer.log('Latitude: $latitude, Longitude: $longitude');
+    } catch (e) {
+      // Handle the error here
+      developer.log('Error getting location: $e');
+      // You can display a user-friendly error message or perform other error-handling actions
+    }
   }
 
   final map = GlobalKey<LongdoMapState>();
